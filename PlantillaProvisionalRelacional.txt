@@ -1,0 +1,91 @@
+ESQUEMA RELACIONAL
+
+Dominios:
+
+Esquemas de relacion:
+   Ususario = (Nombre: VARCHAR, clave primaria; Contrasenya: VARCHAR, NO NULO; 
+               Correo: VARCHAR, NO NULO; FotoDePerfil: BOOLEANO);
+
+   Verificar que para toda ocurrencia de (Nombre) en 'Premium' existe en 'Ususario'
+   Verificar que para toda ocurrencia de (Nombre) en 'NoPremium' existe en 'Ususario'
+   Verificar que para toda ocurrencia de (Nombre) en 'CreadorContenido' existe en 'Ususario'
+   Verificar que para toda ocurrencia de (Nombre) en el supertipo 'Ususario' existe, como mucho, en uno de los subtipos
+
+   Premium = (Nombre: VARCHAR, clave primaria);
+              clave ajena (Nombre) referencia a Ususario(Nombre)
+
+   NoPremium = (Nombre: VARCHAR, clave primaria; NumSalt: ENTERO, NO NULO);
+                clave ajena (Nombre) referencia a Ususario(Nombre)
+
+   CreadorContenido = (Nombre: VARCHAR, clave primaria);
+                       clave ajena (Nombre) referencia a Ususario(Nombre)
+
+   Genero = (ID: ENTERO, clave primaria; Nombre: VARCHAR, NO NULO);
+
+   Audio = (ID: ENTERO; CreadorContenido_Nombre: VARCHAR; 
+            FicheroAudio: VARCHAR, NO NULO; Titulo: VARCHAR, NO NULO; 
+            Idioma: VARCHAR, NO NULO; Duracion: REAL, NO NULO);
+            clave primaria (ID,CreadorContenido_Nombre);
+            clave ajena (CreadorContenido_Nombre) referencia a CreadorContenido(Nombre)
+
+   Verificar que para toda ocurrencia de (ID) en 'Podcast' existe en 'Audio'
+   Verificar que para toda ocurrencia de (ID) en 'Cancion' existe en 'Audio'
+   Verificar que para toda ocurrencia de (ID) en el supertipo 'Audio' existe, como mucho, en uno de los subtipos
+   Verificar que para toda ocurrencia de 'Nombre' en 'CreadorContenido' existe al menos 1 ocurrencia en 'Audio'
+
+   Podcast = (ID: ENTERO, clave primaria; Resumen: VARCHAR, NO NULO);
+              clave ajena (ID) referencia a Audio(ID)
+
+   Cancion = (ID: ENTERO, clave primaria);
+              clave ajena (ID) referencia a Audio(ID)
+
+   PlayList = (ID: ENTERO; Ususario_Nombre: VARCHAR; 
+               Nombre: VARCHAR, NO NULO);
+               clave primaria (ID,Ususario_Nombre);
+               clave ajena (Ususario_Nombre) referencia a Ususario(Nombre)
+
+   Carpeta = (ID: ENTERO, clave primaria; Nombre: VARCHAR, NO NULO);
+
+   Artista = (Nombre: VARCHAR, clave primaria; PaisDeNacimiento: VARCHAR, NO NULO);
+
+   Amacenar = (Carpeta_ID: ENTERO; PlayList_ID: ENTERO; 
+               PlayList_Ususario_Nombre: VARCHAR);
+               clave primaria (Carpeta_ID,PlayList_ID,PlayList_Ususario_Nombre);
+               clave ajena (Carpeta_ID) referencia a Carpeta(ID)
+               clave ajena (PlayList_ID,PlayList_Ususario_Nombre) referencia a PlayList(ID,Ususario_Nombre)
+
+   Contiene = (Audio_ID: ENTERO; Audio_CreadorContenido_Nombre: VARCHAR; 
+               PlayList_ID: ENTERO; PlayList_Ususario_Nombre: VARCHAR);
+               clave primaria (Audio_ID,Audio_CreadorContenido_Nombre,PlayList_ID,PlayList_Ususario_Nombre);
+               clave ajena (Audio_ID,Audio_CreadorContenido_Nombre) referencia a Audio(ID,CreadorContenido_Nombre)
+               clave ajena (PlayList_ID,PlayList_Ususario_Nombre) referencia a PlayList(ID,Ususario_Nombre)
+
+   Pertenecer = (Audio_ID: ENTERO; Audio_CreadorContenido_Nombre: VARCHAR; 
+                 Genero_ID: ENTERO);
+                 clave primaria (Audio_ID,Audio_CreadorContenido_Nombre,Genero_ID);
+                 clave ajena (Audio_ID,Audio_CreadorContenido_Nombre) referencia a Audio(ID,CreadorContenido_Nombre)
+                 clave ajena (Genero_ID) referencia a Genero(ID)
+
+   Verificar que para toda ocurrencia de '(ID,CreadorContenido_Nombre)' en 'Audio' existe al menos 1 ocurrencia en 'Pertenecer'
+   Verificar que para toda ocurrencia de 'ID' en 'Genero' existe al menos 1 ocurrencia en 'Pertenecer'
+
+   Seguir = (Ususario_Nombre: VARCHAR; Ususario_Nombre: VARCHAR);
+             clave primaria (Ususario_Nombre,Ususario_Nombre);
+             clave ajena (Ususario_Nombre) referencia a Ususario(Nombre)
+             clave ajena (Ususario_Nombre) referencia a Ususario(Nombre)
+
+   SerFavorita = (Audio_ID: ENTERO; Audio_CreadorContenido_Nombre: VARCHAR; 
+                  Ususario_Nombre: VARCHAR);
+                  clave primaria (Audio_ID,Audio_CreadorContenido_Nombre,Ususario_Nombre);
+                  clave ajena (Audio_ID,Audio_CreadorContenido_Nombre) referencia a Audio(ID,CreadorContenido_Nombre)
+                  clave ajena (Ususario_Nombre) referencia a Ususario(Nombre)
+
+   Componer = (Artista_Nombre: VARCHAR; Audio_ID: ENTERO; 
+               Audio_CreadorContenido_Nombre: VARCHAR);
+               clave primaria (Artista_Nombre,Audio_ID,Audio_CreadorContenido_Nombre);
+               clave ajena (Artista_Nombre) referencia a Artista(Nombre)
+               clave ajena (Audio_ID,Audio_CreadorContenido_Nombre) referencia a Audio(ID,CreadorContenido_Nombre)
+
+   Verificar que para toda ocurrencia de 'Nombre' en 'Artista' existe al menos 1 ocurrencia en 'Componer'
+   Verificar que para toda ocurrencia de '(ID,CreadorContenido_Nombre)' en 'Audio' existe al menos 1 ocurrencia en 'Componer'
+

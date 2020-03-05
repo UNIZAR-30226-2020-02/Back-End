@@ -1,0 +1,220 @@
+<<
+Primera forma normal
+--------------------
+>>
+
+El esquema 'Ususario' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Premium' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'NoPremium' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'CreadorContenido' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Genero' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Audio' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Podcast' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Cancion' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'PlayList' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Carpeta' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Artista' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Amacenar' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Contiene' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Pertenecer' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Seguir' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'SerFavorita' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+El esquema 'Componer' se encuentra en 1FN, ya que no
+tiene campos multivaluados.
+
+<<
+Segunda forma normal
+--------------------
+>>
+
+El esquema 'Ususario' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'Premium' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'NoPremium' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'CreadorContenido' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'Genero' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'Audio' se encuentra en 2FN, ya que
+ningon atributo no clave depende funcionalmente
+de parte de la clave.
+El esquema 'Podcast' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'Cancion' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'PlayList' se encuentra en 2FN, ya que
+ningon atributo no clave depende funcionalmente
+de parte de la clave.
+El esquema 'Carpeta' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'Artista' se encuentra en 2FN, ya que
+su clave es atï¿½mica.
+El esquema 'Amacenar' se encuentra en 2FN, ya que
+no tiene atributos no clave.
+El esquema 'Contiene' se encuentra en 2FN, ya que
+no tiene atributos no clave.
+El esquema 'Pertenecer' se encuentra en 2FN, ya que
+no tiene atributos no clave.
+El esquema 'Seguir' se encuentra en 2FN, ya que
+no tiene atributos no clave.
+El esquema 'SerFavorita' se encuentra en 2FN, ya que
+no tiene atributos no clave.
+El esquema 'Componer' se encuentra en 2FN, ya que
+no tiene atributos no clave.
+
+<<
+Tercera forma normal
+--------------------
+>>
+
+El esquema 'Ususario' se encuentra en 3FN, ya que
+ningon atributo no clave depende funcionalmente
+de un conjunto de atributos no clave.
+El esquema 'Premium' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'NoPremium' se encuentra en 3FN, ya que
+sï¿½lo tiene un atributo no clave.
+El esquema 'CreadorContenido' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'Genero' se encuentra en 3FN, ya que
+sï¿½lo tiene un atributo no clave.
+El esquema 'Audio' se encuentra en 3FN, ya que
+ningon atributo no clave depende funcionalmente
+de un conjunto de atributos no clave.
+El esquema 'Podcast' se encuentra en 3FN, ya que
+sï¿½lo tiene un atributo no clave.
+El esquema 'Cancion' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'PlayList' se encuentra en 3FN, ya que
+sï¿½lo tiene un atributo no clave.
+El esquema 'Carpeta' se encuentra en 3FN, ya que
+sï¿½lo tiene un atributo no clave.
+El esquema 'Artista' se encuentra en 3FN, ya que
+sï¿½lo tiene un atributo no clave.
+El esquema 'Amacenar' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'Contiene' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'Pertenecer' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'Seguir' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'SerFavorita' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+El esquema 'Componer' se encuentra en 3FN, ya que
+no tiene atributos no clave.
+
+<<
+Forma normal de Boyce-Codd
+--------------------------
+>>
+
+El esquema 'Ususario' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Premium' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'NoPremium' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'CreadorContenido' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Genero' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Audio' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Podcast' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Cancion' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'PlayList' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Carpeta' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Artista' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Amacenar' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Contiene' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Pertenecer' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Seguir' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'SerFavorita' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+El esquema 'Componer' se encuentra en FNBC, ya que
+todo determinante de dependencias funcionales
+contiene una clave de la relacion.
+
+<<
+Cuarta forma normal
+-------------------
+>>
+
+El esquema 'Ususario' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Premium' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'NoPremium' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'CreadorContenido' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Genero' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Audio' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Podcast' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Cancion' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'PlayList' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Carpeta' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Artista' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Amacenar' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Contiene' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Pertenecer' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Seguir' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'SerFavorita' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
+El esquema 'Componer' se encuentra en 4FN, ya que
+no tiene dependencias multivaluadas.
