@@ -76,8 +76,8 @@ WSGI_APPLICATION = 'playstackDjango.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgresPlaystack.db',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'playstack',
         'USER': 'postgres',
         'PASSWORD': 'postgresAdmin',
         'HOST': '127.0.0.1',
