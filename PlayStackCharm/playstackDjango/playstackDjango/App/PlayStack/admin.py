@@ -4,6 +4,7 @@ from  playstackDjango.App.PlayStack.models import *
 # Register your models here.
 
 admin.site.register(Usuario)
+
 admin.site.register(Premium)
 admin.site.register(NoPremium)
 admin.site.register(CreadorContenido)
@@ -14,4 +15,5 @@ admin.site.register(Podcast)
 admin.site.register(Cancion)
 admin.site.register(PlayList)
 admin.site.register(Carpeta)
+admin.site.register(Album)
 

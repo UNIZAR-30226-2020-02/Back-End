@@ -3,18 +3,24 @@ from django.db import models
 
 # Create your models here.
 
-
 class Usuario(models.Model):
     Nombre = models.CharField(max_length=25, primary_key=True)
     Contrasenya = models.CharField(max_length=50, null=False)
     Correo = models.CharField(max_length=100)
-    FotoDePerfil = models.ImageField(null=False)
+    FotoDePerfil = models.ImageField()
     Seguidos = models.ManyToManyField('self')
+
+    def __str__(self):
+        return self.Nombre
+
 
 
 class Premium(models.Model):
     NombrePremium = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                          parent_link=True)
+
+    def __str__(self):
+        return self.NombrePremium
 
 
 class NoPremium(models.Model):
@@ -22,10 +28,16 @@ class NoPremium(models.Model):
                                   parent_link=True)
     NumSalt = models.IntegerField()
 
+    def __str__(self):
+        return self.Nombre
+
 
 class CreadorContenido(models.Model):
     Nombre = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                   parent_link=True)
+
+    def __str__(self):
+        return self.Nombre
 
 
 class Audio(models.Model):
@@ -41,17 +53,25 @@ class Audio(models.Model):
     class Meta:
         unique_together = ('IDAudio', 'CreadorDeContenido')
 
+    def __str__(self):
+        return self.Titulo
+
 
 class Artista(models.Model):
     Nombre = models.CharField(max_length=30, primary_key=True)
     PaisDeNacimiento = models.CharField(max_length=15)
-    Canciones = models.ManyToManyField(Audio, blank=False)
+    Canciones = models.ManyToManyField(Audio, blank=False, related_name='Artistas')
 
+    def __str__(self):
+        return  self.Nombre
 
 class Genero(models.Model):
     ID = models.IntegerField(primary_key=True)
     Nombre = models.CharField(max_length=1000, null=False)
     Canciones = models.ManyToManyField(Audio, blank=False)
+
+    def __str__(self):
+        return self.Nombre
 
 
 class Podcast(models.Model):
@@ -59,10 +79,16 @@ class Podcast(models.Model):
                               parent_link=True)
     Resumen = models.CharField(max_length=1000, null=False)
 
+    def __str__(self):
+        return self.ID
+
 
 class Cancion(models.Model):
     ID = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE,
                               parent_link=True)
+
+    def __str__(self):
+        return self.ID
 
 
 class PlayList(models.Model):
@@ -72,8 +98,22 @@ class PlayList(models.Model):
     class Meta:
         unique_together = ('IDPlayList', 'UsuarioNombre')
 
+    def __str__(self):
+        return self.Nombre
+
 
 class Carpeta(models.Model):
     ID = models.IntegerField(primary_key=True)
     Nombre = models.CharField(max_length=30, null=False)
     PlayList = models.ManyToManyField(PlayList, blank=False)
+
+    def __str__(self):
+        return self.Nombre
+
+class Album(models.Model):
+    ID = models.IntegerField(primary_key=True)
+    NombreAlbum = models.CharField(max_length=1000, null=False)
+    Canciones = models.ManyToManyField(Audio, blank=False)
+
+    def __str__(self):
+        return self.NombreAlbum
