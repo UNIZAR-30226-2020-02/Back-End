@@ -8,11 +8,10 @@ class Usuario(models.Model):
     Contrasenya = models.CharField(max_length=50, null=False)
     Correo = models.CharField(max_length=100)
     FotoDePerfil = models.ImageField()
-    Seguidos = models.ManyToManyField('self')
+    Seguidos = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
         return self.Nombre
-
 
 
 class Premium(models.Model):
@@ -48,7 +47,7 @@ class Audio(models.Model):
     Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)
     CreadorDeContenido = models.ForeignKey(CreadorContenido, null=False, blank=False,
                                            on_delete=models.CASCADE)
-    UsuariosComoFavorita = models.ManyToManyField(Usuario, blank=False)
+    UsuariosComoFavorita = models.ManyToManyField(Usuario, blank=True, related_name='Audios')
 
     class Meta:
         unique_together = ('IDAudio', 'CreadorDeContenido')
@@ -63,12 +62,13 @@ class Artista(models.Model):
     Canciones = models.ManyToManyField(Audio, blank=False, related_name='Artistas')
 
     def __str__(self):
-        return  self.Nombre
+        return self.Nombre
+
 
 class Genero(models.Model):
     ID = models.IntegerField(primary_key=True)
     Nombre = models.CharField(max_length=1000, null=False)
-    Canciones = models.ManyToManyField(Audio, blank=False)
+    Canciones = models.ManyToManyField(Audio, blank=False, related_name='Generos')
 
     def __str__(self):
         return self.Nombre
@@ -95,6 +95,7 @@ class PlayList(models.Model):
     IDPlayList = models.IntegerField(primary_key=True)
     Nombre = models.CharField(max_length=30, null=False)
     UsuarioNombre = models.ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+
     class Meta:
         unique_together = ('IDPlayList', 'UsuarioNombre')
 
@@ -105,15 +106,16 @@ class PlayList(models.Model):
 class Carpeta(models.Model):
     ID = models.IntegerField(primary_key=True)
     Nombre = models.CharField(max_length=30, null=False)
-    PlayList = models.ManyToManyField(PlayList, blank=False)
+    PlayList = models.ManyToManyField(PlayList, blank=True, related_name='Carpetas')
 
     def __str__(self):
         return self.Nombre
 
+
 class Album(models.Model):
     ID = models.IntegerField(primary_key=True)
     NombreAlbum = models.CharField(max_length=1000, null=False)
-    Canciones = models.ManyToManyField(Audio, blank=False)
+    Canciones = models.ManyToManyField(Audio, blank=True, related_name='Albunes')
 
     def __str__(self):
         return self.NombreAlbum
