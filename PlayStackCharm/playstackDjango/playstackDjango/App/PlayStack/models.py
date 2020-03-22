@@ -4,9 +4,9 @@ from django.db import models
 # Create your models here.
 
 class Usuario(models.Model):
-    NombreUsuario = models.CharField(max_length=25, unique=True)
+    NombreUsuario = models.CharField(max_length=25, null=False, unique=True)
     Contrasenya = models.CharField(max_length=50, null=False)
-    Correo = models.CharField(max_length=100, null=False)
+    Correo = models.CharField(max_length=100, null=False, unique=True)
     FotoDePerfil = models.ImageField()
     Seguidos = models.ManyToManyField('self', blank=True)
 
