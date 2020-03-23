@@ -40,8 +40,8 @@ class CreadorContenido(models.Model):
 
 
 class Audio(models.Model):
-    ID = models.IntegerField(primary_key=True)
-    FicheroAudio = models.FileField(null=False)
+    ID = models.AutoField(primary_key=True)
+    FicheroDeAudio = models.FileField(null=False)
     Titulo = models.CharField(max_length=30, null=False)
     Idioma = models.CharField(max_length=15, null=False)
     Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)
@@ -65,6 +65,7 @@ class Cancion(models.Model):
 
 
 class Artista(models.Model):
+    ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=30, unique=True)
     PaisDeNacimiento = models.CharField(max_length=30)
     Canciones = models.ManyToManyField(Audio, blank=True, related_name='Artistas')
@@ -74,8 +75,8 @@ class Artista(models.Model):
 
 
 class Album(models.Model):
-    ID = models.IntegerField(primary_key=True)
-    Nombre = models.CharField(max_length=100, null=False)
+    ID = models.AutoField(primary_key=True)
+    NombreAlbum = models.CharField(max_length=100, null=False)
     Canciones = models.ManyToManyField(Audio, blank=False, related_name='Albunes')
 
     def __str__(self):
@@ -83,7 +84,7 @@ class Album(models.Model):
 
 
 class Genero(models.Model):
-    ID = models.IntegerField(primary_key=True)
+    ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=100, null=False)
     Canciones = models.ManyToManyField(Audio, blank=True, related_name='Generos')
 
@@ -92,7 +93,7 @@ class Genero(models.Model):
 
 
 class PlayList(models.Model):
-    ID = models.IntegerField(primary_key=True)
+    ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=30, null=False)
     Privado = models.BooleanField(null=False)
     UsuarioNombre = models.ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
@@ -105,7 +106,7 @@ class PlayList(models.Model):
 
 
 class Carpeta(models.Model):
-    # ID = models.IntegerField(primary_key=True)
+    ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=30, null=False)
     PlayList = models.ManyToManyField(PlayList, blank=True, related_name='Carpetas')
 

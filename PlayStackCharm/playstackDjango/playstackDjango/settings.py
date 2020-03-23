@@ -27,6 +27,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Declaracion de la ruta para los metodos RPC
+
+MODERNRPC_METHODS_MODULES = [
+
+    'playstackDjango.rpc_app.rpc_methods'
+
+]
 
 # Application definition
 
@@ -37,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'playstackDjango.App.PlayStack'
+    'playstackDjango.App.PlayStack',
+    'modernrpc'
 ]
 
 MIDDLEWARE = [

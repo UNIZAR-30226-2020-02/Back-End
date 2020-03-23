@@ -15,7 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from modernrpc.views import RPCEntryPoint
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # Ruta dentro del servidor para acceder a los metodos
+    url(r'^rpc/', RPCEntryPoint.as_view())
 ]
