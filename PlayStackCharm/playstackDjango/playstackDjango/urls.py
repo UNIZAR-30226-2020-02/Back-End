@@ -13,12 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
-from modernrpc.views import RPCEntryPoint
+from playstackDjango.App.PlayStack.resources import *
+
+user_resource = UsuarioResource()
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    # Ruta dentro del servidor para acceder a los metodos
-    url(r'^rpc/', RPCEntryPoint.as_view())
+    # Ruta dentro del servidor para acceder al recurso UsuarioResource
+    url(r'^usuarios/', include(user_resource.urls))
 ]

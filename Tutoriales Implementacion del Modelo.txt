@@ -1,0 +1,4 @@
+Tutoriales mirados para la implementacion del modelo
+	- https://djangostars.com/blog/rest-apis-django-development/
+	- https://dzone.com/articles/how-to-create-a-rest-api-in-django-1
+	- https://codeburst.io/create-a-django-api-in-under-20-minutes-2a082a60f6f3
