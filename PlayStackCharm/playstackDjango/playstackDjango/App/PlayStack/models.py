@@ -4,39 +4,37 @@ from django.db import models
 # Create your models here.
 
 class Usuario(models.Model):
+    ID = models.AutoField(primary_key=True)
     NombreUsuario = models.CharField(max_length=25, null=False, unique=True)
     Contrasenya = models.CharField(max_length=50, null=False)
-    Correo = models.CharField(max_length=100, null=False, unique=True)
+    Correo = models.EmailField(max_length=100, null=False, unique=True)
     FotoDePerfil = models.ImageField()
     Seguidos = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
         return self.NombreUsuario
 
-
 class Premium(models.Model):
-    NombrePremium = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
-                                         parent_link=True)
+    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.NombrePremium
+        return self.UsuarioRegistrado.NombreUsuario
 
 
 class NoPremium(models.Model):
-    Nombre = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
-                                  parent_link=True)  # WARNING: Es posible que falte la reestriccion de max y min
+    # WARNING: Es posible que falte la reestriccion de max y min
+    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
     NumSalt = models.IntegerField()
 
     def __str__(self):
-        return self.Nombre
+        return self.UsuarioRegistrado.NombreUsuario
 
 
 class CreadorContenido(models.Model):
-    NombreCreador = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
-                                         parent_link=True)
+    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.NombreCreador
+        return self.UsuarioRegistrado.NombreUsuario
 
 
 class Audio(models.Model):
@@ -57,11 +55,12 @@ class Audio(models.Model):
 
 
 class Cancion(models.Model):
-    ID = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE,
-                              parent_link=True)
+    CancionRegistrada = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.ID
+
+        formato = 'Cancion {0} subida por {1}'
+        return formato.format(self.CancionRegistrada.Titulo,self.CancionRegistrada.CreadorDeContenido)
 
 
 class Artista(models.Model):
@@ -86,6 +85,7 @@ class Album(models.Model):
 class Genero(models.Model):
     ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=100, null=False)
+    # Por el momento se puden crear Geenros vacios
     Canciones = models.ManyToManyField(Audio, blank=True, related_name='Generos')
 
     def __str__(self):
@@ -97,12 +97,15 @@ class PlayList(models.Model):
     Nombre = models.CharField(max_length=30, null=False)
     Privado = models.BooleanField(null=False)
     UsuarioNombre = models.ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    Canciones = models.ManyToManyField(Audio, blank=True, related_name='PlayLists')
 
     class Meta:
         unique_together = ('ID', 'UsuarioNombre')
 
     def __str__(self):
-        return self.Nombre
+
+        formato = 'Playlist {0} del usuario {1}'
+        return formato.format(self.Nombre,self.UsuarioNombre)
 
 
 class Carpeta(models.Model):
@@ -111,12 +114,13 @@ class Carpeta(models.Model):
     PlayList = models.ManyToManyField(PlayList, blank=True, related_name='Carpetas')
 
     def __str__(self):
-        return self.Nombre
+
+        formato = 'Carpeta {0}'
+        return formato.format(self.Nombre)
 
 
 class Capitulo(models.Model):
-    ID = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE,
-                              parent_link=True)
+    ID = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.ID
