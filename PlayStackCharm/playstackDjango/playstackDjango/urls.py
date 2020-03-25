@@ -24,5 +24,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
     url(r'^usuarios/', include(user_resource.urls)),
-    url(r'^crearCarpeta', views.CrearCarpeta, name='CrearCarpeta')
+    url(r'^crearCarpeta', views.CrearCarpeta, name='CrearCarpeta'),
+    url(r'^crearUsuario', views.CrearUsuario, name='CrearUsuario'),
+    url(r'^getAllUsers/', views.getAllUser, name='getAllUser')
 ]
