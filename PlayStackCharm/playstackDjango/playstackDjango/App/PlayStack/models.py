@@ -76,7 +76,7 @@ class Album(models.Model):
     ID = models.AutoField(primary_key=True)
     NombreAlbum = models.CharField(max_length=100, null=False)
     Canciones = models.ManyToManyField(Audio, blank=False, related_name='Albunes')
-    Foto = models.ImageField()
+    FotoDelAlbum = models.ImageField()
 
     def __str__(self):
         return self.Nombre
@@ -142,3 +142,16 @@ class Interlocutor(models.Model):
 
     def __str__(self):
         return self.Nombre
+
+class AudioEscuchado(models.Model):
+
+    Usuario = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    Audio = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
+    TimeStamp = models.TimeField(null=False)
+
+    def __str__(self):
+        formato = 'Audio {0} escuchado por {1} en el instante {2}'
+        return formato.format(self.Audio.Titulo,self.Usuario.NombreUsuario,self.TimeStamp)
+
+    class Meta:
+        unique_together = ('Usuario', 'Audio','TimeStamp')
