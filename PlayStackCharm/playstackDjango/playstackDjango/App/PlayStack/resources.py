@@ -7,6 +7,7 @@ from playstackDjango.App.PlayStack.models import *
 
 # Devuelve todos los usuarios existentes en la base de batos
 # en fromato JSON
+
 class UsuarioResource(ModelResource):
     class Meta:
         queryset = Usuario.objects.all()

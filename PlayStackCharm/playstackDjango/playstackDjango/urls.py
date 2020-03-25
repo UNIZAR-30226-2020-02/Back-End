@@ -16,11 +16,13 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from playstackDjango.App.PlayStack.resources import *
+from playstackDjango.App.PlayStack import views
 
 user_resource = UsuarioResource()
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
-    url(r'^usuarios/', include(user_resource.urls))
+    url(r'^usuarios/', include(user_resource.urls)),
+    url(r'^crearCarpeta', views.CrearCarpeta, name='CrearCarpeta')
 ]

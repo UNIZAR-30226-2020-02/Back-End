@@ -1,6 +1,5 @@
 from django.db import models
 
-
 # Create your models here.
 
 class Usuario(models.Model):
@@ -77,6 +76,7 @@ class Album(models.Model):
     ID = models.AutoField(primary_key=True)
     NombreAlbum = models.CharField(max_length=100, null=False)
     Canciones = models.ManyToManyField(Audio, blank=False, related_name='Albunes')
+    Foto = models.ImageField()
 
     def __str__(self):
         return self.Nombre
@@ -121,6 +121,7 @@ class Carpeta(models.Model):
 
 class Capitulo(models.Model):
     ID = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
+    Fecha = models.DateField(null=False)
 
     def __str__(self):
         return self.ID
