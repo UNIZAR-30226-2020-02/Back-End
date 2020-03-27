@@ -25,7 +25,7 @@ SECRET_KEY = 'b_zrbf-(x)ana*+2f+jx6f_d^-mh^+dnhf&c%h@mo&@h9jx-1n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'playstackDjango.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'playstack',
+        'NAME': 'playstackpostgre.westeurope.cloudapp.azure.com',
         'USER': 'postgres',
-        'PASSWORD': 'postgresAdmin',
+        'PASSWORD': 'playstackAdmin2029',
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
