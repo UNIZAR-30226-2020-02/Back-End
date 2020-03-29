@@ -6,7 +6,7 @@ from .models import *
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['NombreUsuario', 'Contrasenya', 'Correo','FotoDePerfil']
+        fields = ['NombreUsuario', 'Contrasenya', 'Correo']
 
 # Serializer que permite la creacion de carpetas
 class CarpetaSerializer(serializers.ModelSerializer):
