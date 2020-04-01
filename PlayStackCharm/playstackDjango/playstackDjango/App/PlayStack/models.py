@@ -1,13 +1,17 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth.base_user import AbstractBaseUser
 
 # Create your models here.
 
 class Usuario(models.Model):
     ID = models.AutoField(primary_key=True)
     NombreUsuario = models.CharField(max_length=25, null=False, unique=True)
+    #USERNAME_FIELD = 'NombreUsuario'
     Contrasenya = models.CharField(max_length=50, null=False)
+    # Contrasenya puede ser reemplazado por password por django
     Correo = models.EmailField(max_length=100, null=False, unique=True)
-    FotoDePerfil = models.ImageField()
+    FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
     Seguidos = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
@@ -38,7 +42,7 @@ class CreadorContenido(models.Model):
 
 class Audio(models.Model):
     ID = models.AutoField(primary_key=True)
-    FicheroDeAudio = models.FileField(null=False)
+    FicheroDeAudio = models.FileField(null=False, upload_to='audio')
     Titulo = models.CharField(max_length=30, null=False)
     Idioma = models.CharField(max_length=15, null=False)
     Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)

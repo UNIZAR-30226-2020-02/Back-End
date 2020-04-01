@@ -18,13 +18,16 @@ from django.contrib import admin
 from playstackDjango.App.PlayStack.resources import *
 from playstackDjango.App.PlayStack import views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 user_resource = UsuarioResource()
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
-    url(r'^usuarios/', include(user_resource.urls)),
-    url(r'^crearCarpeta', views.CrearCarpeta, name='CrearCarpeta'),
-    url(r'^crearUsuario', views.CrearUsuario, name='CrearUsuario'),
-    url(r'^getAllUsers/', views.getAllUser, name='getAllUser')
-]
+    url('usuarios/', include(user_resource.urls)),
+    url('crearCarpeta', views.CrearCarpeta, name='CrearCarpeta'),
+    url('crearUsuario', views.CrearUsuario, name='CrearUsuario'),
+    url('getAllUsers/', views.getAllUser, name='getAllUser'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

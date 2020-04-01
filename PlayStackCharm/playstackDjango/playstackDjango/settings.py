@@ -25,7 +25,7 @@ SECRET_KEY = 'b_zrbf-(x)ana*+2f+jx6f_d^-mh^+dnhf&c%h@mo&@h9jx-1n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['playstack.azurewebsites.net', '127.0.0.1']
+ALLOWED_HOSTS = ['playstack.azurewebsites.net', '127.0.0.1', 'localhost']
 
 # Application definition
 
@@ -71,6 +71,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'playstackDjango.wsgi.application'
 
 
+#MEDIA_ROOT ='/home/tisho/PycharmProjects/Back-End/PlayStackCharm/playstackDjango/media'
+MEDIA_URL ='/media/'
+
+
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -84,6 +88,8 @@ DATABASES = {
         'PORT': '5432'
     }
 }
+
+#MEDIA_ROOT = '/media'
 
 
 # Password validation

@@ -13,5 +13,3 @@ class CarpetaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Carpeta
         fields = ['Nombre']
-
-
