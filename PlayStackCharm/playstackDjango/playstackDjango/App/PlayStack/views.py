@@ -5,7 +5,7 @@ from rest_framework.decorators import parser_classes
 from django.http import JsonResponse
 from django.conf import settings
 from rest_framework.parsers import JSONParser
-
+import hashlib
 from .serializer import *
 from .models import *
 # Permite la creacion de carpetas pasando los campos
@@ -35,6 +35,11 @@ def CrearUsuario(request):
 
         if nuevoUsuario.is_valid():
 
+            """
+            Cifrado de nombre de usuario y contraseña(No probado)
+            nuevoUsuario.Contrasenya = hashlib.new("sha224", nuevoUsuario.Contrasenya).hexdigest()
+            nuevoUsuario.NombreUsuario = hashlib.new("sha224",nuevoUsuario.NombreUsuario).hexdigest()
+            """
             nuevoUsuario.save()
             usuarioRegistrado = Usuario.objects.get(NombreUsuario=request.data['Credenciales']['NombreUsuario']);
 
@@ -58,6 +63,36 @@ def CrearUsuario(request):
 
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+# Permite la creacion de usuarios especificando su tipo
+# pasando los campos del cuerpo al serializer
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def Login(request):
+
+    iform = [{'inform': ''}]
+
+    if request.method == "POST":
+
+        try:
+            usuario = Usuario.objects.get(NombreUsuario=request.data['NombreUsuario'])
+
+        except Usuario.DoesNotExist:
+
+            iform[0] = 'Usuario no registrado'
+            return JsonResponse(iform, safe=False,status=status.HTTP_404_NOT_FOUND)
+
+        if usuario.Contrasenya != request.data['Contrasenya']:
+            iform[0] = 'Contraseña incorrecta'
+            return JsonResponse(iform, safe=False, status=status.HTTP_401_UNAUTHORIZED)
+
+        iform[0] = 'Usuario autenticado correctamente'
+        return JsonResponse(iform, safe=False,status=status.HTTP_200_OK)
+
+    else:
+
+        iform[0] = 'Solo validas peticiones POST'
+        JsonResponse(iform, safe=False, status=status.HTTP_200_OK)
+
 # Retorna la URL de la cancion solicitada cuyo titulo
 # se especifica en el
 @api_view(['GET'])
@@ -75,7 +110,7 @@ def GetSong(request):
 
         url = 'https://' + request.META['HTTP_HOST'] + settings.MEDIA_URL + audio.FicheroDeAudio.name
         data = [{'URL': url}]
-        return JsonResponse(data, safe=False, status=status.HTTP_200_OK);
+        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
 

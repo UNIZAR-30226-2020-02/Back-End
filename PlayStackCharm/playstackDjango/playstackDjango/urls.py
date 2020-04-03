@@ -30,5 +30,6 @@ urlpatterns = [
     url('crearCarpeta', views.CrearCarpeta, name='CrearCarpeta'),
     url('crearUsuario', views.CrearUsuario, name='CrearUsuario'),
     url('getAllUsers/', views.getAllUser, name='GetAllUser'),
-    url('GetSong', views.GetSong, name='GetSong')
+    url('GetSong', views.GetSong, name='GetSong'),
+    url('Login', views.Login, name='Login')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

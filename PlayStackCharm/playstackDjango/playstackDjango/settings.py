@@ -36,7 +36,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'playstackDjango.App.PlayStack'
+    'playstackDjango.App.PlayStack',
+    # Para uso de ssl para aplicaciones en local host
+    'djangosecure',
+    'sslserver'
 ]
 
 MIDDLEWARE = [
@@ -49,6 +52,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
+
+# Para uso de ssl para aplicaciones en local host
+MIDDLEWARE_CLASSES = (
+    'djangosecure.middleware.SecurityMiddleware',
+)
+
+# Para uso de ssl para aplicaciones en local host
+SECURE_SSL_REDIRECT = False
 
 ROOT_URLCONF = 'playstackDjango.urls'
 
