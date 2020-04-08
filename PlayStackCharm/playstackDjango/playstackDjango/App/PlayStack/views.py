@@ -31,31 +31,17 @@ def CrearCarpeta(request):
 def CrearUsuario(request):
 
     if request.method == "POST":
-        nuevoUsuario = UsuarioSerializer(data=request.data['Credenciales'])
+        nuevoUsuario = UsuarioSerializer(data=request.data)
 
         if nuevoUsuario.is_valid():
+
+            nuevoUsuario.save()
 
             """
             Cifrado de nombre de usuario y contraseña(No probado)
             nuevoUsuario.Contrasenya = hashlib.new("sha224", nuevoUsuario.Contrasenya).hexdigest()
             nuevoUsuario.NombreUsuario = hashlib.new("sha224",nuevoUsuario.NombreUsuario).hexdigest()
             """
-            nuevoUsuario.save()
-            usuarioRegistrado = Usuario.objects.get(NombreUsuario=request.data['Credenciales']['NombreUsuario']);
-
-            if request.data['Tipo'] == 'Simple':
-                NoPremium(UsuarioRegistrado=usuarioRegistrado, NumSalt=10).save()
-
-            elif request.data['Tipo'] == 'Premium':
-                Premium(UsuarioRegistrado=usuarioRegistrado).save()
-
-            elif request.data['Tipo'] == 'CreadorDeContenido':
-                CreadorContenido(UsuarioRegistrado=usuarioRegistrado).save()
-
-            else:
-
-                Usuario.objects.filter(NombreUsuario=request.data['Credenciales']['NombreUsuario']).delete()
-                return Response(status=status.HTTP_400_BAD_REQUEST)
 
             return Response(status=status.HTTP_201_CREATED)
 
@@ -91,7 +77,7 @@ def Login(request):
     else:
 
         iform[0] = 'Solo validas peticiones POST'
-        JsonResponse(iform, safe=False, status=status.HTTP_200_OK)
+        JsonResponse(iform, safe=False, status=status.HTTP_400_BAD_REQUEST)
 
 # Retorna la URL de la cancion solicitada cuyo titulo
 # se especifica en el
