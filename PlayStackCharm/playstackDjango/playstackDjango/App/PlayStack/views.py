@@ -35,6 +35,7 @@ def CrearUsuario(request):
 
         if nuevoUsuario.is_valid():
 
+
             nuevoUsuario.save()
 
             """
@@ -48,6 +49,10 @@ def CrearUsuario(request):
         else:
 
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 # Permite la creacion de usuarios especificando su tipo
 # pasando los campos del cuerpo al serializer

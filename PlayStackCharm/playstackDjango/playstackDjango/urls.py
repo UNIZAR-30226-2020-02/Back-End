@@ -27,9 +27,9 @@ urlpatterns = [
     url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
     url('usuarios/', include(user_resource.urls)),
-    url('crearCarpeta', views.CrearCarpeta, name='CrearCarpeta'),
-    url('crearUsuario', views.CrearUsuario, name='CrearUsuario'),
-    url('getAllUsers/', views.getAllUser, name='GetAllUser'),
-    url('GetSong', views.GetSong, name='GetSong'),
-    url('Login', views.Login, name='Login')
+    url('create/folder', views.CrearCarpeta, name='CrearCarpeta'),
+    url('create/user', views.CrearUsuario, name='CrearUsuario'),
+    url('get/allusers', views.getAllUser, name='GetAllUser'),
+    url('get/song', views.GetSong, name='GetSong'),
+    url('user/login', views.Login, name='Login')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
