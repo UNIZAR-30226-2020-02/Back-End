@@ -17,7 +17,6 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from playstackDjango.App.PlayStack.resources import *
 from playstackDjango.App.PlayStack import views
-
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -29,7 +28,11 @@ urlpatterns = [
     url('usuarios/', include(user_resource.urls)),
     url('create/folder', views.CrearCarpeta, name='CrearCarpeta'),
     url('create/user', views.CrearUsuario, name='CrearUsuario'),
+    url('create/withimg', views.CrearUsuarioConImg, name='CrearUsuarioConImg'),
     url('get/allusers', views.getAllUser, name='GetAllUser'),
+    url('get/audio', views.GetAudio, name='GetAudio'),
     url('get/song', views.GetSong, name='GetSong'),
-    url('user/login', views.Login, name='Login')
+    url('get/podcast', views.GetCapituloPodcast, name='GetPodcast'),
+    url('user/login', views.Login, name='Login'),
+    url('user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -6,11 +6,11 @@ from django.contrib.auth.base_user import AbstractBaseUser
 
 class Usuario(models.Model):
     ID = models.AutoField(primary_key=True)
-    NombreUsuario = models.CharField(max_length=25, null=False, unique=True)
+    NombreUsuario = models.CharField(max_length=56, null=False, unique=True)
     #USERNAME_FIELD = 'NombreUsuario'
-    Contrasenya = models.CharField(max_length=50, null=False)
+    Contrasenya = models.CharField(max_length=56, null=False)
     # Contrasenya puede ser reemplazado por password por django
-    Correo = models.EmailField(max_length=100, null=False, unique=True)
+    Correo = models.CharField(max_length=56, null=False, unique=True)
     FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
     Seguidos = models.ManyToManyField('self', blank=True)
 
@@ -58,7 +58,7 @@ class Audio(models.Model):
 
 
 class Cancion(models.Model):
-    CancionRegistrada = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
+    AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
 
     def __str__(self):
 
@@ -124,11 +124,12 @@ class Carpeta(models.Model):
 
 
 class Capitulo(models.Model):
-    ID = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
+    AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
     Fecha = models.DateField(null=False)
 
     def __str__(self):
-        return self.ID
+        formato = 'Capitulo {0} subida por {1}'
+        return formato.format(self.AudioRegistrado.Titulo, self.AudioRegistrado.CreadorDeContenido)
 
 
 class Podcast(models.Model):
