@@ -82,7 +82,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'playstackDjango.wsgi.application'
 
 
-#MEDIA_ROOT ='/home/tisho/PycharmProjects/Back-End/PlayStackCharm/playstackDjango/media'
+MEDIA_ROOT ='/home/martins/Desktop/Proyecto-Software/Proyecto/Back-End/PlayStackCharm/playstackDjango/media'
+#MEDIA_ROOT = '/media'
 MEDIA_URL ='/media/'
 
 

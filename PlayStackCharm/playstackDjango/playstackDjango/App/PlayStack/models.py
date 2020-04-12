@@ -1,16 +1,17 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.conf import settings
 
 # Create your models here.
 
 class Usuario(models.Model):
     ID = models.AutoField(primary_key=True)
-    NombreUsuario = models.CharField(max_length=56, null=False, unique=True)
-    #USERNAME_FIELD = 'NombreUsuario'
-    Contrasenya = models.CharField(max_length=56, null=False)
+    NombreUsuario = models.CharField(max_length=300, null=False, unique=True)
+    # USERNAME_FIELD = 'NombreUsuario'
+    Contrasenya = models.CharField(max_length=300, null=False)
     # Contrasenya puede ser reemplazado por password por django
-    Correo = models.CharField(max_length=56, null=False, unique=True)
+    Correo = models.CharField(max_length=300, null=False, unique=True)
     FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
     Seguidos = models.ManyToManyField('self', blank=True)
 
@@ -18,7 +19,8 @@ class Usuario(models.Model):
         return self.NombreUsuario
 
 class Premium(models.Model):
-    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
+                                             related_name='Premium')
 
     def __str__(self):
         return self.UsuarioRegistrado.NombreUsuario
@@ -26,7 +28,8 @@ class Premium(models.Model):
 
 class NoPremium(models.Model):
     # WARNING: Es posible que falte la reestriccion de max y min
-    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
+                                             related_name='NoPremium')
     NumSalt = models.IntegerField()
 
     def __str__(self):
@@ -34,7 +37,8 @@ class NoPremium(models.Model):
 
 
 class CreadorContenido(models.Model):
-    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
+                                             related_name='CreadorContenido')
 
     def __str__(self):
         return self.UsuarioRegistrado.NombreUsuario
@@ -56,6 +60,10 @@ class Audio(models.Model):
     def __str__(self):
         return self.Titulo
 
+    def getURL(self,httphost):
+
+        return 'https://' + httphost + settings.MEDIA_URL + self.FicheroDeAudio.name
+
 
 class Cancion(models.Model):
     AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
@@ -63,7 +71,11 @@ class Cancion(models.Model):
     def __str__(self):
 
         formato = 'Cancion {0} subida por {1}'
-        return formato.format(self.CancionRegistrada.Titulo,self.CancionRegistrada.CreadorDeContenido)
+        return formato.format(self.AudioRegistrado.Titulo,self.AudioRegistrado.CreadorDeContenido)
+
+    def getURL(self,httphost):
+
+        return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
 
 class Artista(models.Model):
