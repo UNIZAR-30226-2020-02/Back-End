@@ -23,13 +23,15 @@ from django.conf.urls.static import static
 user_resource = UsuarioResource()
 
 urlpatterns = [
+
+    # Se marcan con * las url ya documentadas en swaggerhub
     url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
     url('usuarios/', include(user_resource.urls)),
-    url('create/folder', views.CrearCarpeta, name='CrearCarpeta'),
-    url('create/user', views.CrearUsuario, name='CrearUsuario'),
-    url('create/user/withimg', views.CrearUsuarioConImg, name='CrearUsuarioConImg'),
-    url('get/allusers', views.getAllUser, name='GetAllUser'),
+    url('create/folder', views.CrearCarpeta, name='CrearCarpeta'),  # *
+    url('create/user', views.CrearUsuario, name='CrearUsuario'),    # *
+    url('create/user/withimg', views.CrearUsuarioConImg, name='CrearUsuarioConImg'), # * Falta poner fichero
+    url('get/allusers', views.getAllUser, name='GetAllUser'), # * 
     url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'),
     url('get/audio', views.GetAudio, name='GetAudio'),
     url('get/song', views.GetSong, name='GetSong'),
