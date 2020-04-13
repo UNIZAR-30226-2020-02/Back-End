@@ -33,7 +33,8 @@ def encrypt(text):
 
 	return salt + AES.new(key, AES.MODE_CFB, iv).encrypt(text)
 
-# Desencripta un texto encruptado
+# Desencripta un texto pasado como
+# cadena de bitsencruptado
 # por la funcion encrypt
 def decrypt(text):
 
@@ -197,8 +198,7 @@ def GetAudio(request):
 
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        url = 'https://' + request.META['HTTP_HOST'] + settings.MEDIA_URL + audio.FicheroDeAudio.name
-        data = [{'URL': url}]
+        data = [{'URL':  audio.getURL(request.META['HTTP_HOST'])}]
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
@@ -221,8 +221,7 @@ def GetSong(request):
 
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        url = 'https://' + request.META['HTTP_HOST'] + settings.MEDIA_URL + cancion.AudioRegistrado.FicheroDeAudio.name
-        data = [{'URL': url}]
+        data = [{'URL': cancion.getURL(request.META['HTTP_HOST'])}]
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
@@ -233,7 +232,7 @@ def GetSong(request):
 # de datos
 @api_view(['GET'])
 @parser_classes([JSONParser])
-def GetCapituloPodcast(request):
+def GetPodcastChapter(request):
 
     if request.method == "GET":
 
@@ -245,8 +244,7 @@ def GetCapituloPodcast(request):
 
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        url = 'https://' + request.META['HTTP_HOST'] + settings.MEDIA_URL + capitulo.AudioRegistrado.FicheroDeAudio.name
-        data = [{'URL': url}]
+        data = [{'URL': capitulo.getURL(request.META['HTTP_HOST'])}]
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
@@ -407,7 +405,7 @@ def UpdateUserFields(request):
             user.Contrasenya = encrypt(str.encode(request.data['NuevaContrasenya'])).hex()
             user.Correo = encrypt(str.encode(request.data['NuevoCorreo'])).hex()
             user.save()
-            # De este modo no se gurdan las imagens en /images
+            # Podria hacerse con update(No probado)
             # Usuario.objects.filter(NombreUsuario=request.data['NombreUsuario']).update(FotoDePerfil=request.FILES['NuevaFoto'])
             return Response(status=status.HTTP_200_OK)
 
@@ -443,7 +441,7 @@ def GetSongByGenre(request):
         try:
 
             listaOfArtists = []
-            song = {'Artistas': '', 'url': ''}
+            song = {'Titulo': '','Artistas': '', 'url': ''}
             data = {}
             songs = Genero.objects.get(Nombre=request.query_params['NombreGenero']).Canciones.all()
 
@@ -454,9 +452,10 @@ def GetSongByGenre(request):
 
                     listaOfArtists += [artistsOfSong[index2].Nombre]
 
+                song['Titulo'] = songs[index].Titulo
                 song['Artistas'] = listaOfArtists
                 song['url'] = songs[index].getURL(request.META['HTTP_HOST'])
-                data[songs[index].Titulo] = song
+                data['Cancion{0}'.format(index)] = song
 
             return JsonResponse(data,safe=False, status=status.HTTP_200_OK)
 

@@ -71,7 +71,7 @@ class Cancion(models.Model):
     def __str__(self):
 
         formato = 'Cancion {0} subida por {1}'
-        return formato.format(self.AudioRegistrado.Titulo,self.AudioRegistrado.CreadorDeContenido)
+        return formato.format(self.AudioRegistrado.Titulo, self.AudioRegistrado.CreadorDeContenido)
 
     def getURL(self,httphost):
 
@@ -142,6 +142,10 @@ class Capitulo(models.Model):
     def __str__(self):
         formato = 'Capitulo {0} subida por {1}'
         return formato.format(self.AudioRegistrado.Titulo, self.AudioRegistrado.CreadorDeContenido)
+
+    def getURL(self,httphost):
+
+        return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
 
 class Podcast(models.Model):
