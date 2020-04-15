@@ -174,12 +174,16 @@ def UpdatePerfilImage(request):
             user.FotoDePerfil = request.FILES['NuevaFoto']
             user.save()
             # De este modo no se gurdan las imagens en /images
-            #Usuario.objects.filter(NombreUsuario=request.data['NombreUsuario']).update(FotoDePerfil=request.FILES['NuevaFoto'])
+            # Usuario.objects.filter(NombreUsuario=request.data['NombreUsuario']).update(FotoDePerfil=request.FILES['NuevaFoto'])
             return Response(status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -413,6 +417,10 @@ def UpdateUserFields(request):
         except Usuario.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except  KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -442,7 +450,7 @@ def GetSongByGenre(request):
         try:
 
             listaOfArtists = []
-            song = {'Titulo': '','Artistas': '', 'url': ''}
+            song = {'Titulo': '','Artistas': '', 'url': '', 'ImagenAlbum': ''}
             data = {}
             songs = Genero.objects.get(Nombre=request.query_params['NombreGenero']).Canciones.all()
 
@@ -456,6 +464,7 @@ def GetSongByGenre(request):
                 song['Titulo'] = songs[index].Titulo
                 song['Artistas'] = listaOfArtists
                 song['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                song['ImagenAlbum'] = songs[index].Albunes.all()[0].getFotoDelAlbum(request.META['HTTP_HOST'])
                 data['Cancion{0}'.format(index)] = song
 
             return JsonResponse(data,safe=False, status=status.HTTP_200_OK)

@@ -14,6 +14,7 @@ class Usuario(models.Model):
     Correo = models.CharField(max_length=300, null=False, unique=True)
     FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
     Seguidos = models.ManyToManyField('self', blank=True)
+    SolicitudAmistad = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
         return self.NombreUsuario
@@ -93,10 +94,13 @@ class Album(models.Model):
     NombreAlbum = models.CharField(max_length=100, null=False)
     Canciones = models.ManyToManyField(Audio, blank=False, related_name='Albunes')
     FotoDelAlbum = models.ImageField()
+    Fecha = models.DateField(null=False)
 
     def __str__(self):
-        return self.Nombre
+        return self.NombreAlbum
 
+    def getFotoDelAlbum(self,httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.FotoDelAlbum.name
 
 class Genero(models.Model):
     ID = models.AutoField(primary_key=True)

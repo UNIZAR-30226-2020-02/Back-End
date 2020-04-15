@@ -24,7 +24,8 @@ user_resource = UsuarioResource()
 
 urlpatterns = [
 
-    # Se marcan con * las url ya documentadas en swaggerhub
+    # ¡¡¡ Se marcan con * las url ya documentadas en swaggerhub !!!
+
     url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
     url('usuarios/', include(user_resource.urls)),
@@ -32,14 +33,14 @@ urlpatterns = [
     url('create/user', views.CrearUsuario, name='CrearUsuario'),    # *
     url('create/user/withimg', views.CrearUsuarioConImg, name='CrearUsuarioConImg'), # * Falta poner fichero
     url('get/allusers', views.getAllUser, name='GetAllUser'), # * 
-    url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'),
-    url('get/audio', views.GetAudio, name='GetAudio'),
-    url('get/song', views.GetSong, name='GetSong'),
-    url('get/chapter', views.GetPodcastChapter, name='GetPodcastChapter'),
-    url('user/login', views.Login, name='Login'),
-    url('user/getinfo', views.GetUserInfo, name='GetUserInfo'),
-    url('user/givepermissions', views.GivePermissions, name='GivePermissions'),
-    url('user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage'),
+    url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'), # *
+    url('get/audio', views.GetAudio, name='GetAudio'), # *
+    url('get/song', views.GetSong, name='GetSong'), # *
+    url('get/chapter', views.GetPodcastChapter, name='GetPodcastChapter'), # *
+    url('user/login', views.Login, name='Login'),  # *
+    url('user/getinfo', views.GetUserInfo, name='GetUserInfo'),  # *
+    url('user/givepermissions', views.GivePermissions, name='GivePermissions'),  # *
+    url('user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage'), # *
     url('user/update/permissions', views.UpdatePermissions, name='UpdatePermissions'),
     url('user/update/fields', views.UpdateUserFields, name='UpdateUserFields')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
