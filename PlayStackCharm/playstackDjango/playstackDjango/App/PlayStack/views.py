@@ -15,7 +15,8 @@ import math
 import os
 from Crypto.Cipher import AES
 import binascii
-
+import datetime
+import re
 
 # Encripta cualquier texto pasado
 # como cadena de bits
@@ -583,7 +584,7 @@ def GetProfilePhoto(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-    
+
 # Devuelve la ultimacancion escuchada
 # por el usuario
 @api_view(['GET'])
@@ -668,7 +669,7 @@ def GetFollowers(request):
 
                 photo['FotoDePerfil'] = followers[index].getFotoDePerfil(request.META['HTTP_HOST'])
                 decodename = decrypt(binascii.unhexlify(followers[index].NombreUsuario)).decode('ascii')
-
+                data[decodename] = photo
             return JsonResponse(data, safe=False,status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -695,7 +696,7 @@ def GetFollowing(request):
 
                 photo['FotoDePerfil'] = following[index].getFotoDePerfil(request.META['HTTP_HOST'])
                 decodename = decrypt(binascii.unhexlify(following[index].NombreUsuario)).decode('ascii')
-
+                data[decodename] = photo
             return JsonResponse(data, safe=False,status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -706,3 +707,79 @@ def GetFollowing(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+# Añade una cancion a favoritos
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def AddSongToFavorites(request):
+
+    if request.method == "POST":
+
+        try:
+            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            Cancion.objects.get(AudioRegistrado__Titulo=request.data['Titulo']).UsuariosComoFavorita.add(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Audio.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Marca una canción como escuchada
+# para un determinado usuario
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def AddSongToListened(request):
+
+    if request.method == "POST":
+
+        try:
+
+            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            audio = Audio.objects.get(Titulo=request.data['Titulo'])
+            AudioEscuchado(Usuario=user, Audio=audio, TimeStamp=datetime.datetime.now().time()).save()
+            return Response(status=status.HTTP_200_OK)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Dada una palbra clave
+# retorna un conjunto de
+# usuario
+@api_view(['GET'])
+def SearchUser (request):
+
+    if request.method == "GET":
+        try:
+            data = {'Usuarios': ''}
+            listOfUsers = []
+            allUsers = Usuario.objects.all()
+            keyWord = request.query_params['KeyWord']
+            for index in range(allUsers.count()):
+
+                decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
+                if re.match(keyWord, decodename):
+                    listOfUsers += decodename
+            data['Usuarios'] = listOfUsers
+            return JsonResponse(data,safe=False,status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
