@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.conf import settings
 
+
 # Create your models here.
 
 class Usuario(models.Model):
@@ -13,11 +14,41 @@ class Usuario(models.Model):
     # Contrasenya puede ser reemplazado por password por django
     Correo = models.CharField(max_length=300, null=False, unique=True)
     FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
-    Seguidos = models.ManyToManyField('self', blank=True)
-    SolicitudAmistad = models.ManyToManyField('self', blank=True)
+    Seguidos = models.ManyToManyField('self', through='Relacion', blank=True, symmetrical=False, related_name='Seguidores')
+    SolicitudAmistad = models.ManyToManyField('self', through='Peticiones', blank=True, symmetrical=False, related_name='Solicitudes')
 
     def __str__(self):
         return self.NombreUsuario
+
+    def getFotoDePerfil(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.FotoDePerfil.name
+
+    def follow(self, user):
+        relacion, created = Relacion.objects.get_or_create(
+            fromUser=self,
+            toUser=user)
+        return relacion
+
+    def unFollow(self, user):
+        Relacion.objects.filter(
+            fromUser=self,
+            toUser=user).delete()
+
+    def getFollowing(self):
+        return self.Seguidos.filter(
+            to_users__fromUser=self)
+
+    def getFollowers(self):
+        return self.Seguidores.filter(
+            from_users__toUser=self)
+
+class Relacion (models.Model):
+    fromUser = models.ForeignKey(Usuario, related_name='from_users', on_delete=models.CASCADE)
+    toUser = models.ForeignKey(Usuario, related_name='to_users', on_delete=models.CASCADE)
+
+class Peticiones(models.Model):
+    fromUser = models.ForeignKey(Usuario, related_name='from_usr', on_delete=models.CASCADE)
+    toUser = models.ForeignKey(Usuario, related_name='to_usr', on_delete=models.CASCADE)
 
 class Premium(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
@@ -53,7 +84,6 @@ class Audio(models.Model):
     Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)
     CreadorDeContenido = models.ForeignKey(CreadorContenido, null=False, blank=False,
                                            on_delete=models.CASCADE)
-    UsuariosComoFavorita = models.ManyToManyField(Usuario, blank=True, related_name='Audios')
 
     class Meta:
         unique_together = ('ID', 'CreadorDeContenido')
@@ -61,21 +91,19 @@ class Audio(models.Model):
     def __str__(self):
         return self.Titulo
 
-    def getURL(self,httphost):
-
+    def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.FicheroDeAudio.name
 
 
 class Cancion(models.Model):
     AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
+    UsuariosComoFavorita = models.ManyToManyField(Usuario, blank=True, related_name='Favoritas')
 
     def __str__(self):
-
         formato = 'Cancion {0} subida por {1}'
         return formato.format(self.AudioRegistrado.Titulo, self.AudioRegistrado.CreadorDeContenido)
 
-    def getURL(self,httphost):
-
+    def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
 
@@ -83,7 +111,7 @@ class Artista(models.Model):
     ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=30, unique=True)
     PaisDeNacimiento = models.CharField(max_length=30)
-    Canciones = models.ManyToManyField(Audio, blank=True, related_name='Artistas')
+    Canciones = models.ManyToManyField(Cancion, blank=True, related_name='Artistas')
 
     def __str__(self):
         return self.Nombre
@@ -92,21 +120,22 @@ class Artista(models.Model):
 class Album(models.Model):
     ID = models.AutoField(primary_key=True)
     NombreAlbum = models.CharField(max_length=100, null=False)
-    Canciones = models.ManyToManyField(Audio, blank=False, related_name='Albunes')
+    Canciones = models.ManyToManyField(Cancion, blank=False, related_name='Albunes')
     FotoDelAlbum = models.ImageField()
     Fecha = models.DateField(null=False)
 
     def __str__(self):
         return self.NombreAlbum
 
-    def getFotoDelAlbum(self,httphost):
+    def getFotoDelAlbum(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.FotoDelAlbum.name
+
 
 class Genero(models.Model):
     ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=100, null=False)
     # Por el momento se puden crear Geenros vacios
-    Canciones = models.ManyToManyField(Audio, blank=True, related_name='Generos')
+    Canciones = models.ManyToManyField(Cancion, blank=True, related_name='Generos')
 
     def __str__(self):
         return self.Nombre
@@ -117,15 +146,14 @@ class PlayList(models.Model):
     Nombre = models.CharField(max_length=30, null=False)
     Privado = models.BooleanField(null=False)
     UsuarioNombre = models.ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
-    Canciones = models.ManyToManyField(Audio, blank=True, related_name='PlayLists')
+    Canciones = models.ManyToManyField(Cancion, blank=True, related_name='PlayLists')
 
     class Meta:
         unique_together = ('ID', 'UsuarioNombre')
 
     def __str__(self):
-
         formato = 'Playlist {0} del usuario {1}'
-        return formato.format(self.Nombre,self.UsuarioNombre)
+        return formato.format(self.Nombre, self.UsuarioNombre)
 
 
 class Carpeta(models.Model):
@@ -134,7 +162,6 @@ class Carpeta(models.Model):
     PlayList = models.ManyToManyField(PlayList, blank=True, related_name='Carpetas')
 
     def __str__(self):
-
         formato = 'Carpeta {0}'
         return formato.format(self.Nombre)
 
@@ -147,8 +174,7 @@ class Capitulo(models.Model):
         formato = 'Capitulo {0} subida por {1}'
         return formato.format(self.AudioRegistrado.Titulo, self.AudioRegistrado.CreadorDeContenido)
 
-    def getURL(self,httphost):
-
+    def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
 
@@ -161,6 +187,7 @@ class Podcast(models.Model):
     def __str__(self):
         return self.Nombre
 
+
 class Interlocutor(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
     Podcasts = models.ManyToManyField(Podcast, blank=True, related_name='Participan')
@@ -168,15 +195,15 @@ class Interlocutor(models.Model):
     def __str__(self):
         return self.Nombre
 
-class AudioEscuchado(models.Model):
 
+class AudioEscuchado(models.Model):
     Usuario = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
     Audio = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
     TimeStamp = models.TimeField(null=False)
 
     def __str__(self):
         formato = 'Audio {0} escuchado por {1} en el instante {2}'
-        return formato.format(self.Audio.Titulo,self.Usuario.NombreUsuario,self.TimeStamp)
+        return formato.format(self.Audio.Titulo, self.Usuario.NombreUsuario, self.TimeStamp)
 
     class Meta:
-        unique_together = ('Usuario', 'Audio','TimeStamp')
+        unique_together = ('Usuario', 'Audio', 'TimeStamp')
