@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.conf import settings
-
+from .functions import *
+import binascii
 
 # Create your models here.
 
@@ -18,7 +19,8 @@ class Usuario(models.Model):
     SolicitudAmistad = models.ManyToManyField('self', through='Peticiones', blank=True, symmetrical=False, related_name='Solicitudes')
 
     def __str__(self):
-        return self.NombreUsuario
+
+        return decrypt(binascii.unhexlify(self.NombreUsuario)).decode('ascii')
 
     def getFotoDePerfil(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.FotoDePerfil.name
@@ -197,8 +199,9 @@ class Interlocutor(models.Model):
 
 
 class AudioEscuchado(models.Model):
-    Usuario = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE)
-    Audio = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
+    ID = models.AutoField(primary_key=True)
+    Usuario = models. ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    Audio = models.ForeignKey(Audio, null=False, blank=False, on_delete=models.CASCADE)
     TimeStamp = models.TimeField(null=False)
 
     def __str__(self):

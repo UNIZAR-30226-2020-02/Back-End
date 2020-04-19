@@ -44,6 +44,7 @@ urlpatterns = [
     url('user/get/lastsong', views.GetLastSong, name='GetLastSong'),
     url('user/get/profilephoto', views.GetProfilePhoto, name='GetProfilePhoto'),
     url('user/get/following', views.GetFollowing, name='GetFollowing'),
+    url('user/get/favoritesongs', views.GetFavoriteSongs, name='GetFavoriteSongs'),
     url('user/get/followers', views.GetFollowers, name='GetFollowers'),
     url('user/givepermissions', views.GivePermissions, name='GivePermissions'),  # *
     url('user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage'), # *
@@ -54,6 +55,5 @@ urlpatterns = [
     url('user/add/song/tolistened', views.AddSongToListened, name='AddSongToListened'),
     url('user/search', views.SearchUser, name='SearchUser'),
     url('user/follow', views.Follow, name='Follow')
-
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

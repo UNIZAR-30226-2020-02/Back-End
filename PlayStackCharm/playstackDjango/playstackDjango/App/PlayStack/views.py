@@ -6,51 +6,15 @@ from django.http import JsonResponse
 from django.conf import settings
 from rest_framework.parsers import JSONParser
 from django.db.models import Q
-import hashlib
-from cryptography.fernet import Fernet
 from .serializer import *
 from .models import *
 from .forms import *
 import math
 import os
-from Crypto.Cipher import AES
 import binascii
 import datetime
 import re
-
-# Encripta cualquier texto pasado
-# como cadena de bits
-def encrypt(text):
-    IV_SIZE = 16  # 128 bit, fixed for the AES algorithm
-    KEY_SIZE = 32  # 256 bit meaning AES-256, can also be 128 or 192 bits
-    SALT_SIZE = 16  # This size is arbitrary
-
-    password = b'PlayStack'
-    salt = b'\xa69r\x8d0\x1a\x0cX\x8a\xc4}\xe2\xc7\xb2T\xd9'
-    derived = hashlib.pbkdf2_hmac('sha256', password, salt, 100000,
-                                  dklen=IV_SIZE + KEY_SIZE)
-    iv = derived[0:IV_SIZE]
-    key = derived[IV_SIZE:]
-
-    return salt + AES.new(key, AES.MODE_CFB, iv).encrypt(text)
-
-
-# Desencripta un texto pasado como
-# cadena de bitsencruptado
-# por la funcion encrypt
-def decrypt(text):
-    IV_SIZE = 16  # 128 bit, fixed for the AES algorithm
-    KEY_SIZE = 32  # 256 bit meaning AES-256, can also be 128 or 192 bits
-    SALT_SIZE = 16  # This size is arbitrary
-
-    password = b'PlayStack'
-    salt = text[0:SALT_SIZE]
-    derived = hashlib.pbkdf2_hmac('sha256', password, salt, 100000,
-                                  dklen=IV_SIZE + KEY_SIZE)
-    iv = derived[0:IV_SIZE]
-    key = derived[IV_SIZE:]
-    return AES.new(key, AES.MODE_CFB, iv).decrypt(text[SALT_SIZE:])
-
+from .functions import *
 
 # Permite la creacion de carpetas pasando los campos
 # del cuerpo al serializer
@@ -451,7 +415,7 @@ def GetAllSongs(request):
         listOfGenders = []
         listOfAlbuns = []
         listOfImages = []
-        song = {'Artistas': '', 'url': '', 'Albunes': '', 'ImagenesAlbums': '', 'Generos': ''}
+        listOfSongs = []
         data = {}
         songs = Cancion.objects.all()
 
@@ -468,12 +432,12 @@ def GetAllSongs(request):
             gendersOfSong = songs[index].Generos.all()
             for index4 in range(gendersOfSong.count()):
                 listOfGenders += [gendersOfSong[index4].Nombre]
-
-            song['Artistas'] = listOfArtists
-            song['url'] = songs[index].getURL(request.META['HTTP_HOST'])
-            song['Albunes'] = listOfAlbuns
-            song['ImagenesAlbums'] = listOfImages
-            song['Generos'] = listOfGenders
+            listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albunes', 'ImagenesAlbum','Generos'})]
+            listOfSongs[index]['Artistas'] = listOfArtists
+            listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+            listOfSongs[index]['Albunes'] = listOfAlbuns
+            listOfSongs[index]['ImagenesAlbums'] = listOfImages
+            listOfSongs[index]['Generos'] = listOfGenders
             data[songs[index].AudioRegistrado.Titulo] = song
             listOfArtists = []
             listOfGenders = []
@@ -499,29 +463,39 @@ def GetSongByGenre(request):
             listaOfArtists = []
             listOfAlbuns = []
             listOfImages = []
-            song = {'Artistas': '', 'url': '', 'Albunes': '', 'ImagenesAlbum': ''}
+            listOfSongs = []
             data = {}
             songs = Genero.objects.get(Nombre=request.query_params['NombreGenero']).Canciones.all()
-
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             for index in range(songs.count()):
 
                 artistsOfSong = songs[index].Artistas.all()
                 for index2 in range(artistsOfSong.count()):
                     listaOfArtists += [artistsOfSong[index2].Nombre]
-
+                    print(artistsOfSong[index2].Nombre)
+                    print(listaOfArtists)
                 albunsOfSong = songs[index].Albunes.all()
                 for index3 in range(albunsOfSong.count()):
                     listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
                     listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
 
-                song['Artistas'] = listaOfArtists
-                song['url'] = songs[index].getURL(request.META['HTTP_HOST'])
-                song['Albunes'] = listOfAlbuns
-                song['ImagenesAlbum'] = songs[index].Albunes.all()[0].getFotoDelAlbum(request.META['HTTP_HOST'])
-                data[songs[index].AudioRegistrado.Titulo] = song
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albunes', 'ImagenesAlbum','EsFavorita'})]
+                listOfSongs[index]['Artistas'] = listaOfArtists
+                listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albunes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbum'] = songs[index].Albunes.all()[0].getFotoDelAlbum(request.META['HTTP_HOST'])
+
+                if songs[index].UsuariosComoFavorita.all().filter(NombreUsuario=hashname).exists():
+                    listOfSongs[index]['EsFavorita'] = '1'
+                else:
+                    listOfSongs[index]['EsFavorita'] = '0'
+
+                data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
                 listaOfArtists = []
                 listOfAlbuns = []
                 listOfImages = []
+
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except Genero.DoesNotExist:
@@ -619,7 +593,6 @@ def GetLastSong(request):
         songData['ImagenesAlbums'] = listOfImages
         songData['Generos'] = listOfGenders
         data[song.AudioRegistrado.Titulo] = songData
-        print(data)
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
@@ -661,15 +634,15 @@ def GetFollowers(request):
 
         try:
             data = {}
-            photo = {'FotoDePerfil': ''}
+            listOfPhotos = []
             hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             followers = user.getFollowers()
             for index in range(followers.count()):
-
-                photo['FotoDePerfil'] = followers[index].getFotoDePerfil(request.META['HTTP_HOST'])
+                listOfPhotos += [dict.fromkeys({'FotoDePerfil'})]
+                listOfPhotos[index]['FotoDePerfil'] = followers[index].getFotoDePerfil(request.META['HTTP_HOST'])
                 decodename = decrypt(binascii.unhexlify(followers[index].NombreUsuario)).decode('ascii')
-                data[decodename] = photo
+                data[decodename] = listOfPhotos[index]
             return JsonResponse(data, safe=False,status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -688,15 +661,16 @@ def GetFollowing(request):
 
         try:
             data = {}
-            photo = {'FotoDePerfil': ''}
+            listOfPhotos = []
+
             hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             following = user.getFollowing()
             for index in range(following.count()):
-
-                photo['FotoDePerfil'] = following[index].getFotoDePerfil(request.META['HTTP_HOST'])
+                listOfPhotos += [dict.fromkeys({'FotoDePerfil'})]
+                listOfPhotos[index]['FotoDePerfil'] = following[index].getFotoDePerfil(request.META['HTTP_HOST'])
                 decodename = decrypt(binascii.unhexlify(following[index].NombreUsuario)).decode('ascii')
-                data[decodename] = photo
+                data[decodename] =  listOfPhotos[index]
             return JsonResponse(data, safe=False,status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -770,16 +744,69 @@ def SearchUser (request):
             data = {'Usuarios': ''}
             listOfUsers = []
             allUsers = Usuario.objects.all()
-            keyWord = request.query_params['KeyWord']
+            keyWord = re.compile(request.query_params['KeyWord'])
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
                 if re.match(keyWord, decodename):
-                    listOfUsers += decodename
+                    listOfUsers += [decodename]
             data['Usuarios'] = listOfUsers
-            return JsonResponse(data,safe=False,status=status.HTTP_200_OK)
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Devulve las canciones
+# favoritas de un usuario
+@api_view(['GET'])
+def GetFavoriteSongs(request):
+
+    if request.method == "GET":
+
+        listOfSongs = []
+        listOfAlbuns = []
+        listOfImages = []
+        listOfArtists = []
+        listOfGenders = []
+        data = {}
+        try:
+
+            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            favoritesongs = user.Favoritas
+            for index in (range(favoritesongs.count())):
+                artistsOfSong = favoritesongs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listOfArtists += [artistsOfSong[index2].Nombre]
+
+                albunsOfSong = favoritesongs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+
+                gendersOfSong = favoritesongs[index].Generos.all()
+                for index4 in range(gendersOfSong.count()):
+                    listOfGenders += [gendersOfSong[index4].Nombre]
+
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albunes', 'ImagenesAlbums', 'Generos'})]
+                listOfSongs[index]['Artistas'] = listOfArtists
+                listOfSongs[index]['url'] = favoritesongs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albunes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbums'] = listOfImages
+                listOfSongs[index]['Generos'] = listOfGenders
+                data[favoritesongs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
