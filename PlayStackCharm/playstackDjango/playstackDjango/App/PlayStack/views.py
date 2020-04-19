@@ -887,27 +887,30 @@ def AddSongToPlayList(request):
 # Devuelve las playlist de un usuario,
 # y si es posible las fotos de 4 canciones
 @api_view(['GET'])
-@parser_classes([JSONParser])
+#@parser_classes([JSONParser])
 def GetUserPlaylists (request):
     print(request.query_params['NombreUsuario'])
-    data = {'NombrePlayList': '', 'Fotos':[]}
+    data = {'PlayLists': []}
+    dataAux=[]
+    playlist= {'NombrePlayList': '', 'Fotos':[]}
     if request.method == "GET":
         try:
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            playlist = PlayList.objects.get(UsuarioNombre=user)
 
-            data['NombrePlayList'] = playlist.Nombre
+            for p in PlayList.objects.filter(UsuarioNombre=user):
+                playlist['NombrePlayList'] = p.Nombre
 
-            fotos = []
-            i=0
-            for c in playlist.Canciones.order_by('id')[:4]:
-                album=Album.objects.get(Canciones=c)
-                fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
-                i=i+1
-            if i>0:
-                data['Fotos'] = fotos
-
+                fotos = []
+                i=0
+                for c in p.Canciones.order_by('id')[:4]:
+                    album=Album.objects.get(Canciones=c)
+                    fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
+                    i=i+1
+                if i>0:
+                    playlist['Fotos'] = fotos
+                dataAux.append(playlist)
+            data['PlayList']= dataAux
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
