@@ -15,8 +15,10 @@ class Usuario(models.Model):
     # Contrasenya puede ser reemplazado por password por django
     Correo = models.CharField(max_length=300, null=False, unique=True)
     FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
-    Seguidos = models.ManyToManyField('self', through='Relacion', blank=True, symmetrical=False, related_name='Seguidores')
-    SolicitudAmistad = models.ManyToManyField('self', through='Peticiones', blank=True, symmetrical=False, related_name='Solicitudes')
+    Seguidos = models.ManyToManyField('self', through='Relacion', blank=True, symmetrical=False,
+                                      related_name='Seguidores')
+    SolicitudAmistad = models.ManyToManyField('self', through='Peticiones', blank=True, symmetrical=False,
+                                              related_name='Solicitudes')
 
     def __str__(self):
 
@@ -31,8 +33,19 @@ class Usuario(models.Model):
             toUser=user)
         return relacion
 
+    def addRequest(self, user):
+        peticion, created = Peticiones.objects.get_or_create(
+            fromUser=self,
+            toUser=user)
+        return peticion
+
     def unFollow(self, user):
         Relacion.objects.filter(
+            fromUser=self,
+            toUser=user).delete()
+
+    def removeRequest(self, user):
+        Peticiones.objects.filter(
             fromUser=self,
             toUser=user).delete()
 
@@ -43,6 +56,9 @@ class Usuario(models.Model):
     def getFollowers(self):
         return self.Seguidores.filter(
             from_users__toUser=self)
+    def getRequests(self):
+        return self.Solicitudes.filter(
+            from_usr__toUser=self)
 
 class Relacion (models.Model):
     fromUser = models.ForeignKey(Usuario, related_name='from_users', on_delete=models.CASCADE)

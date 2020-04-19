@@ -19,7 +19,7 @@ from .functions import *
 # Permite la creacion de carpetas pasando los campos
 # del cuerpo al serializer
 @api_view(['POST'])
-def CrearCarpeta(request):
+def CreateFolder(request):
     if request.method == "POST":
         serializer = CarpetaSerializer(data=request.data)
 
@@ -40,7 +40,7 @@ def CrearCarpeta(request):
 # pasando los campos del cuerpo al serializer
 @api_view(['POST'])
 @parser_classes([JSONParser])
-def CrearUsuario(request):
+def CreateUser(request):
     if request.method == "POST":
 
         request.data['Contrasenya'] = encrypt(str.encode(request.data['Contrasenya'])).hex()
@@ -66,7 +66,7 @@ def CrearUsuario(request):
 # Permite la creacion de usuarios con una imagen
 # de perfil
 @api_view(['POST'])
-def CrearUsuarioConImg(request):
+def CreateUserImg(request):
     inform = [{'inform': ''}]
 
     if request.method == 'POST':
@@ -432,13 +432,13 @@ def GetAllSongs(request):
             gendersOfSong = songs[index].Generos.all()
             for index4 in range(gendersOfSong.count()):
                 listOfGenders += [gendersOfSong[index4].Nombre]
-            listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albunes', 'ImagenesAlbum','Generos'})]
+            listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum','Generos'})]
             listOfSongs[index]['Artistas'] = listOfArtists
             listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
-            listOfSongs[index]['Albunes'] = listOfAlbuns
+            listOfSongs[index]['Albumes'] = listOfAlbuns
             listOfSongs[index]['ImagenesAlbums'] = listOfImages
             listOfSongs[index]['Generos'] = listOfGenders
-            data[songs[index].AudioRegistrado.Titulo] = song
+            data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
             listOfArtists = []
             listOfGenders = []
             listOfAlbuns = []
@@ -480,17 +480,12 @@ def GetSongByGenre(request):
                     listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
                     listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
 
-                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albunes', 'ImagenesAlbum','EsFavorita'})]
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum','EsFavorita'})]
                 listOfSongs[index]['Artistas'] = listaOfArtists
                 listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
-                listOfSongs[index]['Albunes'] = listOfAlbuns
-                listOfSongs[index]['ImagenesAlbum'] = songs[index].Albunes.all()[0].getFotoDelAlbum(request.META['HTTP_HOST'])
-
-                if songs[index].UsuariosComoFavorita.all().filter(NombreUsuario=hashname).exists():
-                    listOfSongs[index]['EsFavorita'] = '1'
-                else:
-                    listOfSongs[index]['EsFavorita'] = '0'
-
+                listOfSongs[index]['Albumes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbum'] = listOfImages
+                listOfSongs[index]['EsFavorita'] = songs[index].UsuariosComoFavorita.all().filter(NombreUsuario=hashname).exists()
                 data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
                 listaOfArtists = []
                 listOfAlbuns = []
@@ -570,7 +565,7 @@ def GetLastSong(request):
         listOfGenders = []
         listOfAlbuns = []
         listOfImages = []
-        songData = {'Artistas': '', 'url': '', 'Albunes': '', 'ImagenesAlbums': '', 'Generos': ''}
+        songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': ''}
         data = {}
         # Por el momento siempre es la misma
         song = Cancion.objects.get(AudioRegistrado__Titulo='Audio1')
@@ -589,7 +584,7 @@ def GetLastSong(request):
 
         songData['Artistas'] = listOfArtists
         songData['url'] = song.getURL(request.META['HTTP_HOST'])
-        songData['Albunes'] = listOfAlbuns
+        songData['Albumes'] = listOfAlbuns
         songData['ImagenesAlbums'] = listOfImages
         songData['Generos'] = listOfGenders
         data[song.AudioRegistrado.Titulo] = songData
@@ -682,6 +677,7 @@ def GetFollowing(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 # Añade una cancion a favoritos
+# de un usuario
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def AddSongToFavorites(request):
@@ -700,6 +696,36 @@ def AddSongToFavorites(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Elimina una cancion como
+# favorita de un usuario
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def RemoveSongFromFavorites(request):
+    if request.method == "POST":
+        try:
+
+            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            song = Cancion.objects.get(AudioRegistrado__Titulo=request.data['Titulo'])
+            song.UsuariosComoFavorita.remove(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Cancion.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -773,9 +799,9 @@ def GetFavoriteSongs(request):
         data = {}
         try:
 
-            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            favoritesongs = user.Favoritas
+            favoritesongs = user.Favoritas.all()
             for index in (range(favoritesongs.count())):
                 artistsOfSong = favoritesongs[index].Artistas.all()
                 for index2 in range(artistsOfSong.count()):
@@ -790,10 +816,10 @@ def GetFavoriteSongs(request):
                 for index4 in range(gendersOfSong.count()):
                     listOfGenders += [gendersOfSong[index4].Nombre]
 
-                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albunes', 'ImagenesAlbums', 'Generos'})]
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'Generos'})]
                 listOfSongs[index]['Artistas'] = listOfArtists
                 listOfSongs[index]['url'] = favoritesongs[index].getURL(request.META['HTTP_HOST'])
-                listOfSongs[index]['Albunes'] = listOfAlbuns
+                listOfSongs[index]['Albumes'] = listOfAlbuns
                 listOfSongs[index]['ImagenesAlbums'] = listOfImages
                 listOfSongs[index]['Generos'] = listOfGenders
                 data[favoritesongs[index].AudioRegistrado.Titulo] = listOfSongs[index]
@@ -810,3 +836,49 @@ def GetFavoriteSongs(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Crea una nueva playList
+# Para un determinado usuario
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def CreatePlayList(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            PlayList(Nombre=request.data['NombrePlayList'], Privado=request.data['EsPrivado'],UsuarioNombre=user).save()
+            return Response(status=status.HTTP_200_OK)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Añade una cancion a una
+# play list de un determinado
+# usuario
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def AddSongToPlayList(request):
+
+    if request.method == "POST":
+
+        try:
+
+            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            song = Cancion.objects.get(AudioRegistrado__Titulo=request.data['Titulo'])
+            PlayList.objects.get(UsuarioNombre__NombreUsuario=hashname).Canciones.add(song)
+            return Response(status=status.HTTP_200_OK)
+
+        except Cancion.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
