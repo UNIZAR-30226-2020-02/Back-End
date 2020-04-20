@@ -10,9 +10,7 @@ import binascii
 class Usuario(models.Model):
     ID = models.AutoField(primary_key=True)
     NombreUsuario = models.CharField(max_length=300, null=False, unique=True)
-    # USERNAME_FIELD = 'NombreUsuario'
     Contrasenya = models.CharField(max_length=300, null=False)
-    # Contrasenya puede ser reemplazado por password por django
     Correo = models.CharField(max_length=300, null=False, unique=True)
     FotoDePerfil = models.ImageField(null=True, blank=True, upload_to='images')
     Seguidos = models.ManyToManyField('self', through='Relacion', blank=True, symmetrical=False,

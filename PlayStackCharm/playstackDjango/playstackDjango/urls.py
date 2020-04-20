@@ -27,36 +27,34 @@ urlpatterns = [
     # ¡¡¡ Se marcan con * las url ya documentadas en swaggerhub !!!
     # ¡¡¡ Se marcan con ^ las url pendientes de actualizar en swaggerhub !!!
 
-    url(r'^admin/', admin.site.urls),
+    url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
-    url(r'^usuarios/', include(user_resource.urls)),
-    url(r'^create/folder', views.CreateFolder, name='CrearCarpeta'),  # *
-    url(r'^create/playlist', views.CreatePlayList, name='CreatePlayList'),
-    url(r'^create/user', views.CreateUser, name='CrearUsuario'),    # *
-    url(r'^create/user/withimg', views.CreateUserImg, name='CrearUsuarioConImg'), # * Falta poner fichero
-    url(r'^get/allusers', views.GetAllUser, name='GetAllUser'), # *
-    url(r'^get/allsongs', views.GetAllSongs, name='GetAllSongs'), # *
-    url(r'^get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'), # *
-    url(r'^get/audio', views.GetAudio, name='GetAudio'), # *
-    url(r'^get/song', views.GetSong, name='GetSong'), # *
-    url(r'^get/chapter', views.GetPodcastChapter, name='GetPodcastChapter'), # *
-    url(r'^user/login', views.Login, name='Login'),  # *
-    url(r'^user/get/info', views.GetUserInfo, name='GetUserInfo'),  # *
-    url(r'^user/get/lastsong', views.GetLastSong, name='GetLastSong'),
-    url(r'^user/get/profilephoto', views.GetProfilePhoto, name='GetProfilePhoto'),
-    url(r'^user/get/following', views.GetFollowing, name='GetFollowing'),
-    url(r'^user/get/favoritesongs', views.GetFavoriteSongs, name='GetFavoriteSongs'),
-    url(r'^user/get/followers', views.GetFollowers, name='GetFollowers'),
-    url(r'^user/givepermissions', views.GivePermissions, name='GivePermissions'),  # *
-    url(r'^user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage'), # *
-    url(r'^user/update/permissions', views.UpdatePermissions, name='UpdatePermissions'), # *
-    url(r'^user/update/fields', views.UpdateUserFields, name='UpdateUserFields'),  # ^
-    url(r'^user/add/request', views.AddRequest, name='AddRequest'),
-    url(r'^user/add/song/tofavorites', views.AddSongToFavorites, name='AddSongToFavorites'),
-    url(r'^user/remove/song/fromfavorites', views.RemoveSongFromFavorites, name='RemoveSongFromFavorites'),
-    url(r'^user/add/song/tolistened', views.AddSongToListened, name='AddSongToListened'),
-    url(r'^user/add/song/playlist', views.AddSongToPlayList, name='AddSongToPlayList'),
-    url(r'^user/search', views.SearchUser, name='SearchUser'),
-    url(r'^user/follow', views.Follow, name='Follow'),
+    url('usuarios/', include(user_resource.urls)),
+    url('create/folder', views.CreateFolder, name='CreateFolder'),  # *
+    url('create/user', views.CreateUser, name='CreateUser'),    # *
+    url('create/user/withimg', views.CreateUserImg, name='CreateUserImg'), # * Falta poner fichero
+    url('get/allusers', views.GetAllUser, name='GetAllUser'), # *
+    url('get/allsongs', views.GetAllSongs, name='GetAllSongs'), # *
+    url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'), # *
+    url('get/audio', views.GetAudio, name='GetAudio'), # *
+    url('get/song', views.GetSong, name='GetSong'), # *
+    url('get/chapter', views.GetPodcastChapter, name='GetPodcastChapter'), # *
+    url('get/playlist', views.GetUserPlaylists, name='GetUserPlaylists'),  # *
+    url('user/login', views.Login, name='Login'),  # *
+    url('user/get/info', views.GetUserInfo, name='GetUserInfo'),  # *
+    url('user/get/lastsong', views.GetLastSong, name='GetLastSong'),
+    url('user/get/profilephoto', views.GetProfilePhoto, name='GetProfilePhoto'),
+    url('user/get/following', views.GetFollowing, name='GetFollowing'),
+    url('user/get/followers', views.GetFollowers, name='GetFollowers'),
+    url('user/givepermissions', views.GivePermissions, name='GivePermissions'),  # *
+    url('user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage'), # *
+    url('user/update/permissions', views.UpdatePermissions, name='UpdatePermissions'), # *
+    url('user/update/fields', views.UpdateUserFields, name='UpdateUserFields'),  # ^
+    url('user/add/request', views.AddRequest, name='AddRequest'),
+    url('user/add/song/tofavorites', views.AddSongToFavorites, name='AddSongToFavorites'),
+    url('user/add/song/tolistened', views.AddSongToListened, name='AddSongToListened'),
+    url('user/search', views.SearchUser, name='SearchUser'),
+    url('user/follow', views.Follow, name='Follow')
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
