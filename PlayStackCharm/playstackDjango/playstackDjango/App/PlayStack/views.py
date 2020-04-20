@@ -568,7 +568,13 @@ def GetLastSong(request):
         songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': ''}
         data = {}
         # Por el momento siempre es la misma
-        song = Cancion.objects.get(AudioRegistrado__Titulo='Audio1')
+        hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+        audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
+
+        if audio is not None:
+            song = Cancion.objects.get(AudioRegistrado=audio.Audio)
+        else:
+            song = Cancion.objects.all()[0]
 
         artistsOfSong = song.Artistas.all()
         for index2 in range(artistsOfSong.count()):
