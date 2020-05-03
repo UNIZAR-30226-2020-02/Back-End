@@ -55,6 +55,7 @@ urlpatterns = [
     url('user/add/song/tofavorites', views.AddSongToFavorites, name='AddSongToFavorites'),
     url('user/add/song/tolistened', views.AddSongToListened, name='AddSongToListened'),
     url('user/add/song/playlist', views.AddSongToPlayList, name='AddSongToPlayList'),
+    url('user/remove/song/fromfavorites', views.RemoveSongFromFavorites, name='RemoveSongFromFavorites'),
     url('user/search', views.SearchUser, name='SearchUser'),
     url('user/follow', views.Follow, name='Follow')
 
