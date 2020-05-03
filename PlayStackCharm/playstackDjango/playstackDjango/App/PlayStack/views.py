@@ -16,25 +16,6 @@ import datetime
 import re
 from .functions import *
 
-# Permite la creacion de carpetas pasando los campos
-# del cuerpo al serializer
-@api_view(['POST'])
-def CreateFolder(request):
-    if request.method == "POST":
-        serializer = CarpetaSerializer(data=request.data)
-
-        if serializer.is_valid():
-
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-
-        else:
-
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    else:
-
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-
 
 # Permite la creacion de usuarios especificando su tipo
 # pasando los campos del cuerpo al serializer
@@ -930,4 +911,27 @@ def GetUserPlaylists (request):
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Permite la creacion de carpetas
+# dado su nombre, su usuario y un conjunto de playlists
+@api_view(['POST'])
+def CreateFolder(request):
+    if request.method == "POST":
+        try:
+            nombreCarpeta = request.query_params['NombreCarpeta']
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlaylist']), UsuarioNombre=user)
+
+            carpeta=Carpeta(Nombre=nombreCarpeta)
+            carpeta.save()
+            carpeta.PlayList.add(playlist)
+
+            return Response(status=status.HTTP_200_OK)
+        except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
