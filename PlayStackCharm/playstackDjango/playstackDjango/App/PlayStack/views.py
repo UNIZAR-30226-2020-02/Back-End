@@ -784,10 +784,6 @@ def GetFavoriteSongs(request):
     if request.method == "GET":
 
         listOfSongs = []
-        listOfAlbuns = []
-        listOfImages = []
-        listOfArtists = []
-        listOfGenders = []
         data = {}
         try:
 
@@ -887,7 +883,7 @@ def AddSongToPlayList(request):
 def GetUserPlaylists (request):
     print(request.query_params['NombreUsuario'])
     data = {}
-    playlist= {'Fotos':[]}
+    playlist= {'Fotos':[], 'Privado':'True'}
     if request.method == "GET":
         try:
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
@@ -895,6 +891,8 @@ def GetUserPlaylists (request):
 
             for p in PlayList.objects.filter(UsuarioNombre=user):
                 nombre = p.Nombre
+                esPrivado=p.Privado
+                playlist['Privado']=esPrivado
 
                 fotos = []
                 i=0
@@ -903,9 +901,10 @@ def GetUserPlaylists (request):
                     fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                     i=i+1
                 if i>0:
-                    data[nombre]=fotos
+                    playlist['Fotos']=fotos
                 else:
-                    data[nombre] = ''
+                    playlist['Fotos'] = ''
+                data[nombre] = playlist
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
