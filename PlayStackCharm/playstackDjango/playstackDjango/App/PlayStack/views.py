@@ -813,7 +813,13 @@ def GetFavoriteSongs(request):
             hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             favoritesongs = user.Favoritas.all()
+
             for index in (range(favoritesongs.count())):
+                listOfAlbuns = []
+                listOfImages = []
+                listOfArtists = []
+                listOfGenders = []
+
                 artistsOfSong = favoritesongs[index].Artistas.all()
                 for index2 in range(artistsOfSong.count()):
                     listOfArtists += [artistsOfSong[index2].Nombre]
@@ -833,6 +839,7 @@ def GetFavoriteSongs(request):
                 listOfSongs[index]['Albumes'] = listOfAlbuns
                 listOfSongs[index]['ImagenesAlbums'] = listOfImages
                 listOfSongs[index]['Generos'] = listOfGenders
+
                 data[favoritesongs[index].AudioRegistrado.Titulo] = listOfSongs[index]
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 

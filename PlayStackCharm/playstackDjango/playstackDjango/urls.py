@@ -41,6 +41,7 @@ urlpatterns = [
     url('get/song', views.GetSong, name='GetSong'), # *
     url('get/chapter', views.GetPodcastChapter, name='GetPodcastChapter'), # *
     url('get/playlists', views.GetUserPlaylists, name='GetUserPlaylists'),  # *
+    url('get/favoritesongs', views.GetFavoriteSongs, name='GetFavoriteSongs'),  # *
     url('user/login', views.Login, name='Login'),  # *
     url('user/get/info', views.GetUserInfo, name='GetUserInfo'),  # *
     url('user/get/lastsong', views.GetLastSong, name='GetLastSong'),
