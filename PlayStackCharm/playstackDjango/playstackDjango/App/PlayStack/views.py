@@ -795,6 +795,8 @@ def SearchUser (request):
 
 # Devulve las canciones
 # favoritas de un usuario
+
+# HAY UN BUG, revisar
 @api_view(['GET'])
 def GetFavoriteSongs(request):
 
@@ -890,22 +892,21 @@ def AddSongToPlayList(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
-# Devuelve las playlist de un usuario,
-# y si es posible las fotos de 4 canciones
+# Devuelve todas las play list y su conjunto de imágenes
+#  de un determinado usuario
 @api_view(['GET'])
 #@parser_classes([JSONParser])
 def GetUserPlaylists (request):
     print(request.query_params['NombreUsuario'])
-    data = {'PlayLists': []}
-    dataAux=[]
-    playlist= {'NombrePlayList': '', 'Fotos':[]}
+    data = {}
+    playlist= {'Fotos':[]}
     if request.method == "GET":
         try:
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
 
             for p in PlayList.objects.filter(UsuarioNombre=user):
-                playlist['NombrePlayList'] = p.Nombre
+                nombre = p.Nombre
 
                 fotos = []
                 i=0
@@ -914,9 +915,9 @@ def GetUserPlaylists (request):
                     fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                     i=i+1
                 if i>0:
-                    playlist['Fotos'] = fotos
-                dataAux.append(playlist)
-            data['PlayList']= dataAux
+                    data[nombre]=fotos
+                else:
+                    data[nombre] = ''
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
