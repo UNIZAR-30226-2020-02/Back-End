@@ -41,6 +41,7 @@ urlpatterns = [
     url('get/song', views.GetSong, name='GetSong'), # *
     url('get/chapter', views.GetPodcastChapter, name='GetPodcastChapter'), # *
     url('get/playlists', views.GetUserPlaylists, name='GetUserPlaylists'),  # *
+    url('get/publicplaylists', views.GetUserPublicPlaylists, name='GetUserPublicPlaylists'),  # *
     url('get/favoritesongs', views.GetFavoriteSongs, name='GetFavoriteSongs'),  # *
     url('user/login', views.Login, name='Login'),  # *
     url('user/get/info', views.GetUserInfo, name='GetUserInfo'),  # *
@@ -58,7 +59,8 @@ urlpatterns = [
     url('user/add/song/playlist', views.AddSongToPlayList, name='AddSongToPlayList'),
     url('user/remove/song/fromfavorites', views.RemoveSongFromFavorites, name='RemoveSongFromFavorites'),
     url('user/search', views.SearchUser, name='SearchUser'),
-    url('user/follow', views.Follow, name='Follow')
+    url('user/follow', views.Follow, name='Follow'),
+    url('playlist/update', views.updatePlaylist, name='updatePlaylist')
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -840,9 +840,17 @@ def CreatePlayList(request):
 
     if request.method == "POST":
         try:
-            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            PlayList(Nombre=request.data['NombrePlayList'], Privado=request.data['EsPrivado'],UsuarioNombre=user).save()
+            nombre=request.data['NombrePlayList']
+            if request.data['EsPrivado'] == 'True':
+                privado= True
+            elif request.data['EsPrivado'] == 'False':
+                privado= False
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            PlayList.objects.create(Nombre=nombre, Privado=privado, UsuarioNombre=user)
             return Response(status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
 
@@ -913,6 +921,45 @@ def GetUserPlaylists (request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
+
+
+# Devuelve todas las play list y su conjunto de imágenes
+#  de un determinado usuario
+@api_view(['GET'])
+#@parser_classes([JSONParser])
+def GetUserPublicPlaylists (request):
+    print(request.query_params['NombreUsuario'])
+    data = {}
+    playlist= {'Fotos':[], 'Privado':'True'}
+    if request.method == "GET":
+        try:
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+            for p in PlayList.objects.filter(UsuarioNombre=user, Privado=False):
+                nombre = p.Nombre
+                esPrivado=p.Privado
+                playlist['Privado']=esPrivado
+
+                fotos = []
+                i=0
+                for c in p.Canciones.order_by('id')[:4]:
+                    album=Album.objects.get(Canciones=c)
+                    fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
+                    i=i+1
+                if i>0:
+                    playlist['Fotos']=fotos
+                else:
+                    playlist['Fotos'] = ''
+                data[nombre] = playlist
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
 # Permite la creacion de carpetas
 # dado su nombre, su usuario y un conjunto de playlists
 @api_view(['POST'])
@@ -929,6 +976,50 @@ def CreateFolder(request):
             carpeta.PlayList.add(playlist)
 
             return Response(status=status.HTTP_200_OK)
+        except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Permite modificar los campos
+# de una playList
+@api_view(['POST'])
+def updatePlaylist(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlaylist']), UsuarioNombre=user)
+
+            playlist.Nombre = request.query_params['NuevoNombre']
+            if request.query_params['NuevoPrivado'] == 'True':
+                playlist.Privado = True
+            elif request.query_params['NuevoPrivado'] == 'False':
+                playlist.Privado = False
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            playlist.save()
+            return Response(status=status.HTTP_200_OK)
+        except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Permite modificar los campos
+# de una playList
+@api_view(['GET'])
+def getPlaylistSongs(request):
+    data = {}
+    if request.method == "GET":
+        try:
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlaylist']), UsuarioNombre=user)
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
