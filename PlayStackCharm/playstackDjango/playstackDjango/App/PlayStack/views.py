@@ -843,13 +843,7 @@ def CreatePlayList(request):
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             nombre=request.data['NombrePlayList']
-            if request.data['EsPrivado'] == 'True':
-                privado= True
-            elif request.data['EsPrivado'] == 'False':
-                privado= False
-            else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
+            privado = request.data['EsPrivado']
             PlayList.objects.create(Nombre=nombre, Privado=privado, UsuarioNombre=user)
             return Response(status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
@@ -969,7 +963,7 @@ def CreateFolder(request):
             nombreCarpeta = request.query_params['NombreCarpeta']
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlaylist']), UsuarioNombre=user)
+            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlayList']), UsuarioNombre=user)
 
             carpeta=Carpeta(Nombre=nombreCarpeta)
             carpeta.save()
@@ -990,15 +984,10 @@ def updatePlaylist(request):
         try:
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlaylist']), UsuarioNombre=user)
+            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlayList']), UsuarioNombre=user)
 
             playlist.Nombre = request.query_params['NuevoNombre']
-            if request.query_params['NuevoPrivado'] == 'True':
-                playlist.Privado = True
-            elif request.query_params['NuevoPrivado'] == 'False':
-                playlist.Privado = False
-            else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            playlist.Privado = request.query_params['NuevoPrivado']
             playlist.save()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
@@ -1008,20 +997,107 @@ def updatePlaylist(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# Permite modificar los campos
-# de una playList
+# de un determinado genero
 @api_view(['GET'])
-def getPlaylistSongs(request):
-    data = {}
+@parser_classes([JSONParser])
+def GetPlaylistSongs(request):
     if request.method == "GET":
+
         try:
+            listaOfArtists = []
+            listOfAlbuns = []
+            listOfImages = []
+            listOfSongs = []
+
+            data = {}
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            playlist = PlayList.objects.get(Nombre=(request.query_params['NombrePlaylist']), UsuarioNombre=user)
+            songs = PlayList.objects.get(Nombre=request.query_params['NombrePlayList'], UsuarioNombre=user).Canciones.all()
+            for index in range(songs.count()):
+
+                artistsOfSong = songs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listaOfArtists += [artistsOfSong[index2].Nombre]
+                    print(artistsOfSong[index2].Nombre)
+                    print(listaOfArtists)
+                albunsOfSong = songs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbums','EsFavorita'})]
+                listOfSongs[index]['Artistas'] = listaOfArtists
+                listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albumes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbums'] = listOfImages
+                listOfSongs[index]['EsFavorita'] = songs[index].UsuariosComoFavorita.all().filter(NombreUsuario=hashname).exists()
+                data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                listaOfArtists = []
+                listOfAlbuns = []
+                listOfImages = []
 
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
-        except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+
+        except Genero.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+
+# Devuelve todas las canciones
+# de un determinado artista
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def GetSongByArtist(request):
+    if request.method == "GET":
+        try:
+            listaOfArtists = []
+            listOfAlbuns = []
+            listOfImages = []
+            listOfSongs = []
+            data = {}
+            songs = Artista.objects.get(Nombre=request.query_params['NombreArtista']).Canciones.all()
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            for index in range(songs.count()):
+
+                artistsOfSong = songs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listaOfArtists += [artistsOfSong[index2].Nombre]
+                    print(artistsOfSong[index2].Nombre)
+                    print(listaOfArtists)
+                albunsOfSong = songs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum','EsFavorita'})]
+                listOfSongs[index]['Artistas'] = listaOfArtists
+                listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albumes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbum'] = listOfImages
+                listOfSongs[index]['EsFavorita'] = songs[index].UsuariosComoFavorita.all().filter(NombreUsuario=hashname).exists()
+                data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                listaOfArtists = []
+                listOfAlbuns = []
+                listOfImages = []
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Genero.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
