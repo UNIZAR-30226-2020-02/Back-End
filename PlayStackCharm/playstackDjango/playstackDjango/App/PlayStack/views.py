@@ -1118,8 +1118,12 @@ def GetUserFolders(request):
 
             p=PlayList.objects.filter(UsuarioNombre=user)
             for c in Carpeta.objects.filter(PlayList__in=p).distinct('Nombre'):
-                nombres.append(c.Nombre)
-            data["Carpetas"]=nombres
+                playlists=[]
+                for c_pl in c.PlayList.all():
+                    playlists.append(c_pl.Nombre)
+                #nombres.append(c.Nombre)
+                data[c.Nombre]=playlists
+            #data["Carpetas"]=nombres
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
