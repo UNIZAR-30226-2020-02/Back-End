@@ -871,14 +871,19 @@ def CreatePlayList(request):
 def AddSongToPlayList(request):
     if request.method == "POST":
         try:
-            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
-            song = Cancion.objects.get(AudioRegistrado__Titulo=request.data['Titulo'])
-            PlayList.objects.get(UsuarioNombre__NombreUsuario=hashname).Canciones.add(song)
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            song = Cancion.objects.get(AudioRegistrado__Titulo=request.data['NombreCancion'])
+            pl = PlayList.objects.get(UsuarioNombre=user, Nombre=request.data['NombrePlayList'])
+            pl.Canciones.add(song)
+            pl.save()
+            print(song)
             return Response(status=status.HTTP_200_OK)
 
         except Cancion.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except KeyError:
+            print('vinagre')
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
