@@ -594,13 +594,13 @@ def GetLastSong(request):
 
 # Permite que un susario
 # siga a otro
-@api_view(['GET'])
+@api_view(['POST'])
 def Follow(request):
-    if request.method == "GET":
+    if request.method == "POST":
 
         try:
-            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
-            hashfollower = encrypt(str.encode(request.query_params['Seguidor'])).hex()
+            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
             user.follow(follower)
@@ -1168,6 +1168,8 @@ def removePlaylist(request):
             playlist.delete()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
@@ -1189,6 +1191,8 @@ def removePlaylistSong(request):
             playlist.save()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
@@ -1208,6 +1212,8 @@ def removeFolder(request):
             c.delete()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
@@ -1229,6 +1235,8 @@ def updateFolder(request):
             c.save()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
@@ -1252,6 +1260,8 @@ def addPlayListToFolder(request):
             c.save()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
@@ -1274,6 +1284,32 @@ def removePlayListFromFolder(request):
             c.save()
             return Response(status=status.HTTP_200_OK)
         except (Usuario.DoesNotExist, PlayList.DoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Añade una solicitud de amistad
+# a la lista de solicitudes de un
+# usuario
+@api_view(['POST'])
+def AddUserFollowResquest(request):
+
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashnamefollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashnamefollower) | Q(Correo=hashnamefollower))
+            user.addRequest(follower)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
