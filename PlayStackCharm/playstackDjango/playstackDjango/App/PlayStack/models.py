@@ -198,7 +198,8 @@ class Podcast(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
     Descripcion = models.TextField(null=False)
     Subscriptores = models.ManyToManyField(Usuario, blank=True, related_name='Suscrito')
-    Capitulos = models.ForeignKey(Capitulo, blank=False, on_delete=models.CASCADE)
+    Capitulos = models.ManyToManyField(Capitulo, blank=False, related_name='Capitulos')
+    FotoDelPodcast = models.ImageField()
 
     def __str__(self):
         return self.Nombre
