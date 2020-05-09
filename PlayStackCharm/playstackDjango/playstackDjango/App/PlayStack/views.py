@@ -1297,7 +1297,6 @@ def removePlayListFromFolder(request):
 @api_view(['POST'])
 def AddUserFollowResquest(request):
 
-
     if request.method == "POST":
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
