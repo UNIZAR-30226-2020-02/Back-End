@@ -891,7 +891,7 @@ def AddSongToPlayList(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 # Devuelve las playlist de un usuario,
-# y si es posible las fotos de 4 canciones
+# y si es posible las fotos de las 4 canciones
 @api_view(['GET'])
 #@parser_classes([JSONParser])
 def GetUserPlaylists (request):
