@@ -33,7 +33,7 @@ def CreateUser(request):
         if nuevoUsuario.is_valid():
 
             nuevoUsuario.save()
-            user = Usuario.objects.get(NombreUsuario='NombreUsuario')
+            user = Usuario.objects.get(NombreUsuario=request.data['NombreUsuario'])
             NoPremium(UsuarioRegistrado=user, NumSalt=10).save()
             inform[0] = 'Creado correctamente'
             return JsonResponse(inform, safe=False, status=status.HTTP_201_CREATED)
