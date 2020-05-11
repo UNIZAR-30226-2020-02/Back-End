@@ -1127,20 +1127,49 @@ def GetSongByArtist(request):
 @parser_classes([JSONParser])
 def GetUserFolders(request):
     data = {}
-    nombres = []
+    fotos = []
+    playlist = []
+    indexPlayList = 0
+    last = 0
     if request.method == "GET":
         try:
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-
+            playlists = []
             p = PlayList.objects.filter(UsuarioNombre=user)
+
             for c in Carpeta.objects.filter(PlayList__in=p).distinct('Nombre'):
-                playlists = []
+
                 for c_pl in c.PlayList.all():
-                    playlists.append(c_pl.Nombre)
+
+                    playlist += [dict.fromkeys({'Fotos', 'Privado'})]
+                    playlist[indexPlayList]['Privado'] = c_pl.Privado
+
+                    i = 0
+                    fts = []
+                    for can in c_pl.Canciones.order_by('id')[:4]:
+                        album = Album.objects.get(Canciones=can)
+                        fts.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
+                        i = i + 1
+
+                    if i > 0:
+                        fotos.append(fts)
+                        playlist[indexPlayList]['Fotos'] = fotos[indexPlayList]
+
+                    else:
+                        fotos.append('')
+                        playlist[indexPlayList]['Fotos'] = fotos[indexPlayList]
+
+                    playlists += [dict.fromkeys({c_pl.Nombre})]
+                    playlists[indexPlayList][c_pl.Nombre] = playlist[indexPlayList]
+
+                    indexPlayList = indexPlayList + 1
                 # nombres.append(c.Nombre)
-                data[c.Nombre] = playlists
-            # data["Carpetas"]=nombres
+                data[c.Nombre] = playlists[last:indexPlayList]
+                last = indexPlayList
+                # data["Carpetas"]=nombres
+
+
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
