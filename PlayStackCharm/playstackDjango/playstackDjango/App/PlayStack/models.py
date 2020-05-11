@@ -126,18 +126,22 @@ class Cancion(models.Model):
 class Artista(models.Model):
     ID = models.AutoField(primary_key=True)
     Nombre = models.CharField(max_length=30, unique=True)
+    Foto = models.ImageField(upload_to='images')
     PaisDeNacimiento = models.CharField(max_length=30)
     Canciones = models.ManyToManyField(Cancion, blank=True, related_name='Artistas')
 
     def __str__(self):
         return self.Nombre
 
+    def getFoto(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.Foto.name
+
 
 class Album(models.Model):
     ID = models.AutoField(primary_key=True)
     NombreAlbum = models.CharField(max_length=100, null=False)
     Canciones = models.ManyToManyField(Cancion, blank=False, related_name='Albunes')
-    FotoDelAlbum = models.ImageField()
+    FotoDelAlbum = models.ImageField(upload_to='images')
     Fecha = models.DateField(null=False)
 
     def __str__(self):
@@ -199,7 +203,7 @@ class Podcast(models.Model):
     Descripcion = models.TextField(null=False)
     Subscriptores = models.ManyToManyField(Usuario, blank=True, related_name='Suscrito')
     Capitulos = models.ManyToManyField(Capitulo, blank=False, related_name='Capitulos')
-    FotoDelPodcast = models.ImageField()
+    FotoDelPodcast = models.ImageField(upload_to='images')
 
     def __str__(self):
         return self.Nombre

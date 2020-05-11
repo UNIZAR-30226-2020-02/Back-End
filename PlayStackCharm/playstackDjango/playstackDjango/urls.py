@@ -36,6 +36,7 @@ urlpatterns = [
     url('create/playlist', views.CreatePlayList, name='CreatePlayList'),
     url('get/allusers', views.GetAllUser, name='GetAllUser'), # *
     url('get/allsongs', views.GetAllSongs, name='GetAllSongs'), # *
+    url('get/allartists', views.GetAllArtists, name='GetAllArtists'),  # *
     url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'), # *
     url('get/song/byartist', views.GetSongByArtist, name='GetSongByArtist'),  # *
     url('get/audio', views.GetAudio, name='GetAudio'), # *
