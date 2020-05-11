@@ -52,6 +52,7 @@ urlpatterns = [
     url('user/get/lastsongs', views.GetLastSongs, name='GetLastSongs'),
     url('user/get/lastsong', views.GetLastSong, name='GetLastSong'),
     url('user/get/profilephoto', views.GetProfilePhoto, name='GetProfilePhoto'),
+    url('user/get/followrequests', views.GetFollowRequests, name='GetFollowRequests'),
     url('user/get/following', views.GetFollowing, name='GetFollowing'),
     url('user/get/followers', views.GetFollowers, name='GetFollowers'),
     url('user/givepermissions', views.GivePermissions, name='GivePermissions'),  # *

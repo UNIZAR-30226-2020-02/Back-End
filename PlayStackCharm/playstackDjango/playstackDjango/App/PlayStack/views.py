@@ -1430,3 +1430,30 @@ def GetAllArtists(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetFollowRequests(request):
+
+    if request.method == "GET":
+
+        try:
+            data = {}
+            listOfPhotos = []
+
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            requests = user.getRequests()
+            for index in range(requests.count()):
+                listOfPhotos += [dict.fromkeys({'FotoDePerfil'})]
+                listOfPhotos[index]['FotoDePerfil'] = requests[index].getFotoDePerfil(request.META['HTTP_HOST'])
+                decodename = decrypt(binascii.unhexlify(requests[index].NombreUsuario)).decode('ascii')
+                data[decodename] = listOfPhotos[index]
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
