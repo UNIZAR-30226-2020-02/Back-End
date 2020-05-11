@@ -883,7 +883,6 @@ def AddSongToPlayList(request):
         except Cancion.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except KeyError:
-            print('vinagre')
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
@@ -1405,6 +1404,25 @@ def GetLastSongs(request):
                 index = index + 1
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# La funcion devuelve los ultimos  20
+# audios escuchados por un usuario
+@api_view(['GET'])
+def GetAllArtists(request):
+    if request.method == "GET":
+        data = {}
+        try:
+            for a in Artista.objects.all():
+                 data[a.Nombre] = a.getFoto(request.META['HTTP_HOST'])
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Artista.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
