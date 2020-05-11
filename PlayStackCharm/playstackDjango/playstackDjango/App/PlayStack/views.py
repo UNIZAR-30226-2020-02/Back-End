@@ -33,6 +33,8 @@ def CreateUser(request):
         if nuevoUsuario.is_valid():
 
             nuevoUsuario.save()
+            user = Usuario.objects.get(NombreUsuario='NombreUsuario')
+            NoPremium(UsuarioRegistrado=user, NumSalt=10).save()
             inform[0] = 'Creado correctamente'
             return JsonResponse(inform, safe=False, status=status.HTTP_201_CREATED)
 
@@ -1431,6 +1433,8 @@ def GetAllArtists(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+# Devuelve las solicitudes de amistad
+# de un usuario
 @api_view(['GET'])
 def GetFollowRequests(request):
 
@@ -1448,6 +1452,37 @@ def GetFollowRequests(request):
                 listOfPhotos[index]['FotoDePerfil'] = requests[index].getFotoDePerfil(request.META['HTTP_HOST'])
                 decodename = decrypt(binascii.unhexlify(requests[index].NombreUsuario)).decode('ascii')
                 data[decodename] = listOfPhotos[index]
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Devuelve el tipo de permiso
+# de un usuario
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def GetPermissions(request):
+
+    if request.method == "GET":
+
+        try:
+            data = {}
+
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+            if NoPremium.objects.filter(UsuarioRegistrado=user).exists():
+                data['Permiso'] = 'No Premium'
+            elif Premium.objects.filter(UsuarioRegistrado=user).exists():
+                data['Permiso'] = 'Premium'
+            elif CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+                data['Permiso'] = 'Creador de contenido'
+
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
