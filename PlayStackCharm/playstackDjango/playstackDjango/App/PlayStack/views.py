@@ -1007,8 +1007,6 @@ def updatePlaylist(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-
-
 # de un determinado genero
 @api_view(['GET'])
 @parser_classes([JSONParser])
@@ -1020,7 +1018,6 @@ def GetPlaylistSongs(request):
             listOfAlbuns = []
             listOfImages = []
             listOfSongs = []
-            listOfGeneros = []
 
             data = {}
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
@@ -1028,6 +1025,7 @@ def GetPlaylistSongs(request):
             songs = PlayList.objects.get(Nombre=request.query_params['NombrePlayList'],
                                          UsuarioNombre=user).Canciones.all()
             for index in range(songs.count()):
+
                 artistsOfSong = songs[index].Artistas.all()
                 for index2 in range(artistsOfSong.count()):
                     listaOfArtists += [artistsOfSong[index2].Nombre]
@@ -1037,30 +1035,25 @@ def GetPlaylistSongs(request):
                 for index3 in range(albunsOfSong.count()):
                     listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
                     listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
-                genreOfSong = Genero.objects.filter(Canciones=songs[index])
-                for index4 in genreOfSong:
-                    listOfGeneros.append(index4.Nombre)
 
-                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'EsFavorita'})]
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'EsFavorita'})]
                 listOfSongs[index]['Artistas'] = listaOfArtists
                 listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
                 listOfSongs[index]['Albumes'] = listOfAlbuns
-                listOfSongs[index]['Generos'] = listOfGeneros
-                listOfSongs[index]['ImagenesAlbum'] = listOfImages
+                listOfSongs[index]['ImagenesAlbums'] = listOfImages
                 listOfSongs[index]['EsFavorita'] = songs[index].UsuariosComoFavorita.all().filter(
                     NombreUsuario=hashname).exists()
                 data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
                 listaOfArtists = []
                 listOfAlbuns = []
                 listOfImages = []
-                listOfGeneros = []
+
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except PlayList.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         except KeyError:
-            print('kk')
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
