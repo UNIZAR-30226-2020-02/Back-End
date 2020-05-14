@@ -594,30 +594,6 @@ def GetLastSong(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# Permite que un susario
-# siga a otro
-@api_view(['POST'])
-def Follow(request):
-    if request.method == "POST":
-
-        try:
-            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
-            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
-            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
-            user.follow(follower)
-            return Response(status=status.HTTP_200_OK)
-
-        except Usuario.DoesNotExist:
-
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        except KeyError:
-
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    else:
-
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 # Devulve los seguidores
@@ -1330,10 +1306,10 @@ def AddUserFollowResquest(request):
     if request.method == "POST":
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
-            hashnamefollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            hashnamefollower = encrypt(str.encode(request.data['Seguido'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            follower = Usuario.objects.get(Q(NombreUsuario=hashnamefollower) | Q(Correo=hashnamefollower))
-            user.addRequest(follower)
+            followed = Usuario.objects.get(Q(NombreUsuario=hashnamefollower) | Q(Correo=hashnamefollower))
+            user.addRequest(followed)
             return Response(status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
@@ -1433,8 +1409,7 @@ def GetAllArtists(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
-# Devuelve las solicitudes de amistad
-# de un usuario
+# Devuelve las solicitudes de amistad hacia un usuario
 @api_view(['GET'])
 def GetFollowRequests(request):
 
@@ -1489,6 +1464,116 @@ def GetPermissions(request):
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+
+
+
+# Permite que un usuario deje de seguir a un usuario ya seguido
+@api_view(['POST'])
+def Unfollow(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguido'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            followed = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            user.unFollow(followed)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Elimina una solicitud de seguir:
+# Eliminar una solicitud mandada por ti: NombreUsuario='NombreUsuario'  , Seguido= 'Seguido'
+@api_view(['POST'])
+def RemoveUserFollowResquest(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguido'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            followed = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            user.removeRequest(followed)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Elimina una solicitud de seguir
+# Rechazar una solicitud que te han mandado:
+@api_view(['POST'])
+def RejectFollowResquest(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            follower.removeRequest(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# El usuario 'NombreUsuario' elimina el seguidor 'Seguidor'
+# (Eliminar 'NombreUsuario' de la lista de seguidos de 'Seguidor' )
+@api_view(['POST'])
+def RemoveFollower(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            follower.removeFollower(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Añade al a 'seguidor' en los seguidores de 'Usuario'
+#  Además, elimina la solicitud del usuario 'seguidor'
+
+@api_view(['POST'])
+def Follow(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            follower.follow(user)
+            follower.removeRequest(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
