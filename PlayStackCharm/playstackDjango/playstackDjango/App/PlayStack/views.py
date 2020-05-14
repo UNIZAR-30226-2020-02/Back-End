@@ -1577,3 +1577,106 @@ def Follow(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+
+# Devuelve todas las canciones
+# de un determinado album
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def GetSongByAlbum(request):
+    if request.method == "GET":
+
+        try:
+
+            listaOfArtists = []
+            listOfAlbuns = []
+            listOfGeneros = []
+            listOfImages = []
+            listOfSongs = []
+            data = {}
+            songs = Album.objects.get(NombreAlbum=request.query_params['NombreAlbum']).Canciones.all()
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            for index in range(songs.count()):
+
+                artistsOfSong = songs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listaOfArtists += [artistsOfSong[index2].Nombre]
+                albunsOfSong = songs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+                genreOfSong = Genero.objects.filter(Canciones=songs[index])
+                for index4 in genreOfSong:
+                    listOfGeneros.append(index4.Nombre)
+
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'EsFavorita'})]
+                listOfSongs[index]['Artistas'] = listaOfArtists
+                listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albumes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbum'] = listOfImages
+                listOfSongs[index]['Generos'] = listOfGeneros
+                listOfSongs[index]['EsFavorita'] = songs[index].UsuariosComoFavorita.all().filter(
+                    NombreUsuario=hashname).exists()
+                data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                listaOfArtists = []
+                listOfAlbuns = []
+                listOfImages = []
+                listOfGeneros = []
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Album.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Devuelve todas las play list y su conjunto de imágenes
+#  de un determinado usuario
+@api_view(['GET'])
+# @parser_classes([JSONParser])
+def GetArtistAlbums(request):
+    data = {}
+    if request.method == "GET":
+        try:
+            artist=Artista.objects.get(Nombre=request.query_params['NombreArtista'])
+
+            #for a in Album.objects.filter(Canciones__in=Artista.Canciones.objects.all()):
+            for a in Album.objects.filter(Canciones__in=artist.Canciones.all()):
+                data[a.NombreAlbum]=a.getFotoDelAlbum(request.META['HTTP_HOST'])
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Artista.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['POST'])
+def GetPremium(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            nopremium=NoPremium.objects.get(UsuarioRegistrado=user)
+            nopremium.pidePremium=True
+            nopremium.save()
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)

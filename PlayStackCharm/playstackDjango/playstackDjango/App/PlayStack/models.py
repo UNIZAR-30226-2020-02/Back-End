@@ -86,7 +86,7 @@ class Premium(models.Model):
                                              related_name='Premium')
 
     def __str__(self):
-        return self.UsuarioRegistrado.NombreUsuario
+        return str(self.UsuarioRegistrado)
 
 
 class NoPremium(models.Model):
@@ -94,17 +94,19 @@ class NoPremium(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                              related_name='NoPremium')
     NumSalt = models.IntegerField()
+    pidePremium = models.BooleanField(null=False, default=False)
 
     def __str__(self):
-        return self.UsuarioRegistrado.NombreUsuario
+        return str(self.UsuarioRegistrado)
 
 
 class CreadorContenido(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                              related_name='CreadorContenido')
 
+
     def __str__(self):
-        return self.UsuarioRegistrado.NombreUsuario
+        return str(self.UsuarioRegistrado)
 
 
 class Audio(models.Model):
