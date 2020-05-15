@@ -1640,8 +1640,7 @@ def GetSongByAlbum(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# Devuelve todas las play list y su conjunto de imágenes
-#  de un determinado usuario
+#Devuelve los albumes de un artista, y su foto
 @api_view(['GET'])
 # @parser_classes([JSONParser])
 def GetArtistAlbums(request):
@@ -1662,8 +1661,27 @@ def GetArtistAlbums(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
+# Devuelve 15 random albums y su conjunto de imágenes
+#  de un determinado usuario
+@api_view(['GET'])
+# @parser_classes([JSONParser])
+def GetRandomAlbums(request):
+    data = {}
+    if request.method == "GET":
+        try:
+            for a in Album.objects.filter()[:15]:
+                data[a.NombreAlbum]=a.getFotoDelAlbum(request.META['HTTP_HOST'])
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Album.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
 @api_view(['POST'])
-def GetPremium(request):
+def AskForPremium(request):
     if request.method == "POST":
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()

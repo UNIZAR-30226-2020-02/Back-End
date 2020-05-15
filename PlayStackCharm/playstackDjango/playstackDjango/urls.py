@@ -37,7 +37,7 @@ urlpatterns = [
     url('get/allusers', views.GetAllUser, name='GetAllUser'), # *
     url('get/allsongs', views.GetAllSongs, name='GetAllSongs'), # *
     url('get/allartists', views.GetAllArtists, name='GetAllArtists'),  # *
-    #url('get/artist/randomalbums', views.GetArtistAlbums, name='GetArtistAlbums'),  # *
+    url('get/randomalbums', views.GetRandomAlbums, name='GetRandomAlbums'),  # *
     url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'), # *
     url('get/song/byartist', views.GetSongByArtist, name='GetSongByArtist'),  # *
     url('get/song/byalbum', views.GetSongByAlbum, name='GetSongByAlbum'),  # *
@@ -83,6 +83,6 @@ urlpatterns = [
     url('user/search', views.SearchUser, name='SearchUser'),
     url('user/follow', views.Follow, name='Follow'),     #Aceptar solicitud de follow
     url('user/unfollow', views.Unfollow, name='Unfollow'),
-    url('user/getpremium', views.GetPremium, name='GetPremium')
+    url('user/askforpremium', views.AskForPremium, name='AskForPremium')
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
