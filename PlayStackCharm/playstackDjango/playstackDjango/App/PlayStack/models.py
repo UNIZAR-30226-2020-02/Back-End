@@ -5,7 +5,6 @@ from django.conf import settings
 from .functions import *
 import binascii
 
-
 # Create your models here.
 
 class Usuario(models.Model):
@@ -247,7 +246,7 @@ class AudioEscuchado(models.Model):
 
     def __str__(self):
         formato = 'Audio {0} escuchado por {1} en el instante {2}'
-        return formato.format(self.Audio.Titulo, self.Usuario.NombreUsuario, self.TimeStamp)
+        return formato.format(self.Audio.Titulo, str(self.Usuario), self.TimeStamp)
 
     class Meta:
         unique_together = ('Usuario', 'Audio', 'TimeStamp')

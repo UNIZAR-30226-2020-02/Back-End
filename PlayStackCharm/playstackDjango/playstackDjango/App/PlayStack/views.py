@@ -15,8 +15,7 @@ import binascii
 import datetime
 import re
 from .functions import *
-import copy
-
+from django.db.models import Count
 
 # Permite la creacion de usuarios especificando su tipo
 # pasando los campos del cuerpo al serializer
@@ -1812,6 +1811,94 @@ def AskForPremium(request):
 
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetAllPodcasts(request):
+
+    if request.method == "GET":
+
+        allPodcasts = Podcast.objects.all()
+        data = {}
+
+        for index in range(allPodcasts.count()):
+
+            data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
+
+        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetMostListenedSongs(request):
+
+    if request.method == "GET":
+
+        try:
+            listOfAudios = []
+            listOfArtists = []
+            listOfGenders = []
+            listOfAlbuns = []
+            listOfImages = []
+            data = {}
+            index = 0
+            # Por el momento siempre es la misma
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+            audios = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).all().values('Audio__Titulo').annotate(total=Count('Audio__Titulo')).order_by('total').reverse()[:10]
+            for audio in audios:
+
+                if Cancion.objects.filter(AudioRegistrado__Titulo=audio['Audio__Titulo']).exists():
+
+                    song = Cancion.objects.get(AudioRegistrado__Titulo=audio['Audio__Titulo'])
+                    artistsOfSong = song.Artistas.all()
+                    for index2 in range(artistsOfSong.count()):
+                        listOfArtists += [artistsOfSong[index2].Nombre]
+                    albunsOfSong = song.Albunes.all()
+                    for index3 in range(albunsOfSong.count()):
+                        listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                        listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+
+                    gendersOfSong = song.Generos.all()
+                    for index4 in range(gendersOfSong.count()):
+                        listOfGenders += [gendersOfSong[index4].Nombre]
+
+                    listOfAudios += [
+                        dict.fromkeys({'Tipo', 'Titulo', 'Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'Generos'})]
+                    listOfAudios[index]['Tipo'] = 'Cancion'
+                    listOfAudios[index]['Artistas'] = listOfArtists
+                    listOfAudios[index]['url'] = song.getURL(request.META['HTTP_HOST'])
+                    listOfAudios[index]['Albumes'] = listOfAlbuns
+                    listOfAudios[index]['ImagenesAlbums'] = listOfImages
+                    listOfAudios[index]['Generos'] = listOfGenders
+                    listOfAudios[index]['Titulo'] = song.AudioRegistrado.Titulo
+                    data[index] = listOfAudios[index]
+                    listOfArtists = []
+                    listOfGenders = []
+                    listOfAlbuns = []
+                    listOfImages = []
+
+                else:
+
+                    chapter = Capitulo.objects.get(AudioRegistrado__Titulo=audio['Audio__Titulo'])
+                    podcast = chapter.Capitulos.all()[0]
+                    listOfAudios[index] += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
+                    listOfAudios[index]['Tipo'] = 'Podcast'
+                    listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
+                    listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
+                    listOfAudios[index]['Titulo'] = listOfAudios[index]
+                    data[index] = listOfAudios[index]
+
+                index = index + 1
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
