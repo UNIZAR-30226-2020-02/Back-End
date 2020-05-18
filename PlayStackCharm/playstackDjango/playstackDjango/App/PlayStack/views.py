@@ -12,10 +12,10 @@ from .forms import *
 import math
 import os
 import binascii
-import datetime
 import re
 from .functions import *
 from django.db.models import Count
+import datetime
 
 # Permite la creacion de usuarios especificando su tipo
 # pasando los campos del cuerpo al serializer
@@ -717,7 +717,7 @@ def AddSongToListened(request):
             hashname = encrypt(str.encode(request.data['Usuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             audio = Audio.objects.get(Titulo=request.data['Titulo'])
-            AudioEscuchado(Usuario=user, Audio=audio, TimeStamp=datetime.datetime.now().time()).save()
+            AudioEscuchado(Usuario=user, Audio=audio, TimeStamp=datetime.datetime.strptime(request.data['Timestamp'], '%d/%m/%Y %H:%M:%S')).save()
             return Response(status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
 

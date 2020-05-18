@@ -242,7 +242,7 @@ class AudioEscuchado(models.Model):
     ID = models.AutoField(primary_key=True)
     Usuario = models.ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
     Audio = models.ForeignKey(Audio, null=False, blank=False, on_delete=models.CASCADE)
-    TimeStamp = models.TimeField(null=False)
+    TimeStamp = models.DateTimeField(null=False)
 
     def __str__(self):
         formato = 'Audio {0} escuchado por {1} en el instante {2}'
