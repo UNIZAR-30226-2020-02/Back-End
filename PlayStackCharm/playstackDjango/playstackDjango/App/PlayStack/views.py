@@ -1492,3 +1492,84 @@ def GetPermissions(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# La funcion hace una recuperacion
+# informacion en la bases de datod
+# dada una cadena
+
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def Search(request):
+
+    if request.method == "GET":
+        try:
+            data = {'Canciones': '','PlayLists' : '','Albumes' : '','Podcast': '', 'Usuarios': ''}
+            listOfUsers = []
+
+            listaOfArtists = []
+            listOfAlbuns = []
+            listOfImages = []
+            listOfSongs = []
+            listOfGeneros = []
+
+            allUsers = Usuario.objects.all()
+            allSongs = Cancion.objects.all()
+            allPlayLists = PlayList.objects.all()
+            allPodcasts = Podcast.objects.all()
+            allAlbumes = Album.objects.all()
+
+            keyWord = re.compile(request.query_params['KeyWord'])
+            for index in range(allUsers.count()):
+
+                decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
+                if re.match(keyWord, decodename):
+                    listOfUsers += [decodename]
+            data['Usuarios'] = listOfUsers
+
+            for index in range(allSongs.count()):
+
+                if re.match(keyWord, allSongs[index].AudioRegistrado.Titulo):
+                    artistsOfSong = allSongs[index].Artistas.all()
+                    for index2 in range(artistsOfSong.count()):
+                        listaOfArtists += [artistsOfSong[index2].Nombre]
+                        print(artistsOfSong[index2].Nombre)
+                        print(listaOfArtists)
+                    albunsOfSong = allSongs[index].Albunes.all()
+                    for index3 in range(albunsOfSong.count()):
+                        listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                        listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+                    genreOfSong = Genero.objects.filter(Canciones=allSongs[index])
+                    for index4 in genreOfSong:
+                        listOfGeneros.append(index4.Nombre)
+
+                    listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum'})]
+                    listOfSongs[index]['Artistas'] = listaOfArtists
+                    listOfSongs[index]['url'] = allSongs[index].getURL(request.META['HTTP_HOST'])
+                    listOfSongs[index]['Albumes'] = listOfAlbuns
+                    listOfSongs[index]['Generos'] = listOfGeneros
+                    listOfSongs[index]['ImagenesAlbum'] = listOfImages
+
+                    data[allSongs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                    listaOfArtists = []
+                    listOfAlbuns = []
+                    listOfImages = []
+                    listOfGeneros = []
+
+
+
+
+
+
+
+
+
+
+
+
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
