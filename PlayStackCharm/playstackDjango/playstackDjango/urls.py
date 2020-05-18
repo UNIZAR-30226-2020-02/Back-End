@@ -30,6 +30,7 @@ urlpatterns = [
     url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
     url('usuarios/', include(user_resource.urls)),
+    url('search/', views.Search, name='Search'),
     url('create/folder', views.CreateFolder, name='CreateFolder'),  # *
     url('create/user', views.CreateUser, name='CreateUser'),    # *
     url('create/user/withimg', views.CreateUserImg, name='CreateUserImg'), # * Falta poner fichero

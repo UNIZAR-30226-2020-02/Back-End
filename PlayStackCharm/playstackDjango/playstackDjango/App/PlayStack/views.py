@@ -15,6 +15,7 @@ import binascii
 import datetime
 import re
 from .functions import *
+import copy
 
 
 # Permite la creacion de usuarios especificando su tipo
@@ -594,8 +595,6 @@ def GetLastSong(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-
-
 # Devulve los seguidores
 # de un usuario
 @api_view(['GET'])
@@ -750,7 +749,7 @@ def SearchUser(request):
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
-                if re.match(keyWord, decodename):
+                if re.search(keyWord, decodename):
                     listOfUsers += [decodename]
             data['Usuarios'] = listOfUsers
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
@@ -866,6 +865,7 @@ def AddSongToPlayList(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
 
 # Devuelve todas las play list y su conjunto de imágenes
 #  de un determinado usuario
@@ -985,7 +985,7 @@ def updatePlaylist(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-#Devuelve todas las canciones de una playlist
+# Devuelve todas las canciones de una playlist
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def GetPlaylistSongs(request):
@@ -1146,7 +1146,6 @@ def GetUserFolders(request):
                 last = indexPlayList
                 # data["Carpetas"]=nombres
 
-
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
@@ -1297,12 +1296,12 @@ def removePlayListFromFolder(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # Añade una solicitud de amistad
 # a la lista de solicitudes de un
 # usuario
 @api_view(['POST'])
 def AddUserFollowResquest(request):
-
     if request.method == "POST":
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
@@ -1319,6 +1318,7 @@ def AddUserFollowResquest(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
 
 # La funcion devuelve los ultimos  20
 # audios escuchados por un usuario
@@ -1354,7 +1354,8 @@ def GetLastSongs(request):
                     for index4 in range(gendersOfSong.count()):
                         listOfGenders += [gendersOfSong[index4].Nombre]
 
-                    listOfAudios += [dict.fromkeys({'Tipo','Titulo','Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'Generos'})]
+                    listOfAudios += [
+                        dict.fromkeys({'Tipo', 'Titulo', 'Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'Generos'})]
                     listOfAudios[index]['Tipo'] = 'Cancion'
                     listOfAudios[index]['Artistas'] = listOfArtists
                     listOfAudios[index]['url'] = song.getURL(request.META['HTTP_HOST'])
@@ -1372,7 +1373,7 @@ def GetLastSongs(request):
 
                     chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
                     podcast = chapter.Capitulos.all()[0]
-                    listOfAudios[index] += [dict.fromkeys({'Tipo','Titulo','Imagen','Interlocutor'})]
+                    listOfAudios[index] += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
                     listOfAudios[index]['Tipo'] = 'Podcast'
                     listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
                     listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
@@ -1390,6 +1391,7 @@ def GetLastSongs(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # La funcion devuelve los ultimos  20
 # audios escuchados por un usuario
 @api_view(['GET'])
@@ -1398,7 +1400,7 @@ def GetAllArtists(request):
         data = {}
         try:
             for a in Artista.objects.all():
-                 data[a.Nombre] = a.getFoto(request.META['HTTP_HOST'])
+                data[a.Nombre] = a.getFoto(request.META['HTTP_HOST'])
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Artista.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -1409,10 +1411,10 @@ def GetAllArtists(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # Devuelve las solicitudes de amistad hacia un usuario
 @api_view(['GET'])
 def GetFollowRequests(request):
-
     if request.method == "GET":
 
         try:
@@ -1437,12 +1439,12 @@ def GetFollowRequests(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # Devuelve el tipo de permiso
 # de un usuario
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def GetPermissions(request):
-
     if request.method == "GET":
 
         try:
@@ -1468,6 +1470,7 @@ def GetPermissions(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # La funcion hace una recuperacion
 # informacion en la bases de datod
 # dada una cadena
@@ -1475,40 +1478,42 @@ def GetPermissions(request):
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def Search(request):
-
     if request.method == "GET":
         try:
-            data = {'Canciones': '','PlayLists' : '','Albumes' : '','Podcast': '', 'Usuarios': ''}
+            data = {'Canciones': '', 'PlayLists': '', 'Albumes': '', 'Podcasts': '', 'Usuarios': ''}
             listOfUsers = []
-
             listaOfArtists = []
             listOfAlbuns = []
             listOfImages = []
             listOfSongs = []
             listOfGeneros = []
-
+            albumes = {}
+            songs = {}
+            playlists = {}
+            podcasts = {}
+            element = 0
             allUsers = Usuario.objects.all()
             allSongs = Cancion.objects.all()
             allPlayLists = PlayList.objects.all()
             allPodcasts = Podcast.objects.all()
             allAlbumes = Album.objects.all()
 
-            keyWord = re.compile(request.query_params['KeyWord'])
+            keyWord = re.compile(request.query_params['KeyWord'], re.IGNORECASE)
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
-                if re.match(keyWord, decodename):
+
+                if re.search(keyWord, decodename):
                     listOfUsers += [decodename]
             data['Usuarios'] = listOfUsers
 
             for index in range(allSongs.count()):
 
-                if re.match(keyWord, allSongs[index].AudioRegistrado.Titulo):
+                if re.search(keyWord, allSongs[index].AudioRegistrado.Titulo):
                     artistsOfSong = allSongs[index].Artistas.all()
                     for index2 in range(artistsOfSong.count()):
                         listaOfArtists += [artistsOfSong[index2].Nombre]
-                        print(artistsOfSong[index2].Nombre)
-                        print(listaOfArtists)
+
                     albunsOfSong = allSongs[index].Albunes.all()
                     for index3 in range(albunsOfSong.count()):
                         listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
@@ -1518,30 +1523,57 @@ def Search(request):
                         listOfGeneros.append(index4.Nombre)
 
                     listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum'})]
-                    listOfSongs[index]['Artistas'] = listaOfArtists
-                    listOfSongs[index]['url'] = allSongs[index].getURL(request.META['HTTP_HOST'])
-                    listOfSongs[index]['Albumes'] = listOfAlbuns
-                    listOfSongs[index]['Generos'] = listOfGeneros
-                    listOfSongs[index]['ImagenesAlbum'] = listOfImages
+                    listOfSongs[element]['Artistas'] = listaOfArtists
+                    listOfSongs[element]['url'] = allSongs[index].getURL(request.META['HTTP_HOST'])
+                    listOfSongs[element]['Albumes'] = listOfAlbuns
+                    listOfSongs[element]['Generos'] = listOfGeneros
+                    listOfSongs[element]['ImagenesAlbum'] = listOfImages
 
-                    data[allSongs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                    songs[allSongs[index].AudioRegistrado.Titulo] = listOfSongs[element]
                     listaOfArtists = []
                     listOfAlbuns = []
                     listOfImages = []
                     listOfGeneros = []
 
+            data['Canciones'] = songs
 
+            for index in range(allAlbumes.count()):
 
+                if re.match(keyWord, allAlbumes[index].NombreAlbum):
+                    albumes[allAlbumes[index].NombreAlbum] = allAlbumes[index].getFotoDelAlbum(
+                                                                                request.META['HTTP_HOST'])
 
+            data['Albumes'] = albumes
 
+            for index in range(allPlayLists.count()):
+                if (not allPlayLists[index].Privado) and (re.search(keyWord, allPlayLists[index].Nombre)):
+                    playlist = {'Fotos': []}
+                    nombre = allPlayLists[index].Nombre
 
+                    fotos = []
+                    i = 0
+                    print('llego')
+                    print(nombre)
+                    for c in allPlayLists[index].Canciones.order_by('id')[:4]:
+                        album = Album.objects.get(Canciones=c)
+                        print('cancion{}'.format(i))
+                        fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
+                        i = i + 1
+                    if i > 0:
+                        playlist['Fotos'] = fotos
+                    else:
+                        playlist['Fotos'] = ''
 
+                    playlists[nombre] = playlist
 
+            data['PlayLists'] = playlists
 
+            for index in range(allPodcasts.count()):
 
-
-
-
+                if re.search(keyWord, allPodcasts[index].Nombre):
+                    podcasts[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(
+                                                                                request.META['HTTP_HOST'])
+            data['Podcasts'] = podcasts
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -1552,8 +1584,6 @@ def Search(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-
-
 
 
 # Permite que un usuario deje de seguir a un usuario ya seguido
@@ -1575,6 +1605,7 @@ def Unfollow(request):
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # Elimina una solicitud de seguir:
 # Eliminar una solicitud mandada por ti: NombreUsuario='NombreUsuario'  , Seguido= 'Seguido'
 @api_view(['POST'])
@@ -1595,6 +1626,7 @@ def RemoveUserFollowResquest(request):
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
+
 # Elimina una solicitud de seguir
 # Rechazar una solicitud que te han mandado:
 @api_view(['POST'])
@@ -1614,6 +1646,7 @@ def RejectFollowResquest(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
 
 # El usuario 'NombreUsuario' elimina el seguidor 'Seguidor'
 # (Eliminar 'NombreUsuario' de la lista de seguidos de 'Seguidor' )
@@ -1661,7 +1694,6 @@ def Follow(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-
 
 
 # Devuelve todas las canciones
@@ -1724,18 +1756,18 @@ def GetSongByAlbum(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-#Devuelve los albumes de un artista, y su foto
+# Devuelve los albumes de un artista, y su foto
 @api_view(['GET'])
 # @parser_classes([JSONParser])
 def GetArtistAlbums(request):
     data = {}
     if request.method == "GET":
         try:
-            artist=Artista.objects.get(Nombre=request.query_params['NombreArtista'])
+            artist = Artista.objects.get(Nombre=request.query_params['NombreArtista'])
 
-            #for a in Album.objects.filter(Canciones__in=Artista.Canciones.objects.all()):
+            # for a in Album.objects.filter(Canciones__in=Artista.Canciones.objects.all()):
             for a in Album.objects.filter(Canciones__in=artist.Canciones.all()):
-                data[a.NombreAlbum]=a.getFotoDelAlbum(request.META['HTTP_HOST'])
+                data[a.NombreAlbum] = a.getFotoDelAlbum(request.META['HTTP_HOST'])
 
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
@@ -1754,7 +1786,7 @@ def GetRandomAlbums(request):
     if request.method == "GET":
         try:
             for a in Album.objects.filter()[:15]:
-                data[a.NombreAlbum]=a.getFotoDelAlbum(request.META['HTTP_HOST'])
+                data[a.NombreAlbum] = a.getFotoDelAlbum(request.META['HTTP_HOST'])
 
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
@@ -1770,8 +1802,8 @@ def AskForPremium(request):
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            nopremium=NoPremium.objects.get(UsuarioRegistrado=user)
-            nopremium.pidePremium=True
+            nopremium = NoPremium.objects.get(UsuarioRegistrado=user)
+            nopremium.pidePremium = True
             nopremium.save()
             return Response(status=status.HTTP_200_OK)
 

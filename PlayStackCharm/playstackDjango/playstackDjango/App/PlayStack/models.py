@@ -5,6 +5,7 @@ from django.conf import settings
 from .functions import *
 import binascii
 
+
 # Create your models here.
 
 class Usuario(models.Model):
@@ -19,7 +20,6 @@ class Usuario(models.Model):
                                               related_name='Solicitudes')
 
     def __str__(self):
-
         return decrypt(binascii.unhexlify(self.NombreUsuario)).decode('ascii')
 
     def getFotoDePerfil(self, httphost):
@@ -59,18 +59,22 @@ class Usuario(models.Model):
     def getFollowers(self):
         return self.Seguidores.filter(
             from_users__toUser=self)
+
     def getRequests(self):
         return self.Solicitudes.filter(
             from_usr__toUser=self)
 
+
 # Almacena a quien sigue el usuario fromUser
-class Relacion (models.Model):
+class Relacion(models.Model):
     fromUser = models.ForeignKey(Usuario, related_name='from_users', on_delete=models.CASCADE)
     toUser = models.ForeignKey(Usuario, related_name='to_users', on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.fromUser) + ' sigue a ' + str(self.toUser)
-#decrypt(binascii.unhexlify(self.fromUser.NombreUsuario).decode('ascii') + ' sigue a ' + decrypt(binascii.unhexlify(self.toUser.NombreUsuario).decode('ascii')
+
+
+# decrypt(binascii.unhexlify(self.fromUser.NombreUsuario).decode('ascii') + ' sigue a ' + decrypt(binascii.unhexlify(self.toUser.NombreUsuario).decode('ascii')
 
 
 # Almacena a quien quiere seguir el usuario fromUser
@@ -80,6 +84,7 @@ class Peticiones(models.Model):
 
     def __str__(self):
         return str(self.fromUser) + ' quiere seguir a ' + str(self.toUser)
+
 
 class Premium(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
@@ -103,7 +108,6 @@ class NoPremium(models.Model):
 class CreadorContenido(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                              related_name='CreadorContenido')
-
 
     def __str__(self):
         return str(self.UsuarioRegistrado)
@@ -224,7 +228,8 @@ class Podcast(models.Model):
 
     def __str__(self):
         return self.Nombre
-
+    def getFotoDelPodcast(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.FotoDelPodcast.name
 
 class Interlocutor(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
@@ -236,7 +241,7 @@ class Interlocutor(models.Model):
 
 class AudioEscuchado(models.Model):
     ID = models.AutoField(primary_key=True)
-    Usuario = models. ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
+    Usuario = models.ForeignKey(Usuario, null=False, blank=False, on_delete=models.CASCADE)
     Audio = models.ForeignKey(Audio, null=False, blank=False, on_delete=models.CASCADE)
     TimeStamp = models.TimeField(null=False)
 
