@@ -25,23 +25,28 @@ class Usuario(models.Model):
     def getFotoDePerfil(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.FotoDePerfil.name
 
+    # Marca al usuario self como seguidor de user
     def follow(self, user):
         relacion, created = Relacion.objects.get_or_create(
             fromUser=self,
             toUser=user)
         return relacion
 
+    # Añade una peticion del usuario self al usuario user
     def addRequest(self, user):
         peticion, created = Peticiones.objects.get_or_create(
             fromUser=self,
             toUser=user)
         return peticion
 
+    # El usuario self deja de seguir al usuario user
     def unFollow(self, user):
         Relacion.objects.filter(
             fromUser=self,
             toUser=user).delete()
 
+    # Eliminar peticion, elimina la peticion del usuario self al usuario user
+    # hay que invocarlo al aceptar o rechazar
     def removeRequest(self, user):
         Peticiones.objects.filter(
             fromUser=self,
@@ -58,20 +63,30 @@ class Usuario(models.Model):
         return self.Solicitudes.filter(
             from_usr__toUser=self)
 
+# Almacena a quien sigue el usuario fromUser
 class Relacion (models.Model):
     fromUser = models.ForeignKey(Usuario, related_name='from_users', on_delete=models.CASCADE)
     toUser = models.ForeignKey(Usuario, related_name='to_users', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return str(self.fromUser) + ' sigue a ' + str(self.toUser)
+#decrypt(binascii.unhexlify(self.fromUser.NombreUsuario).decode('ascii') + ' sigue a ' + decrypt(binascii.unhexlify(self.toUser.NombreUsuario).decode('ascii')
+
+
+# Almacena a quien quiere seguir el usuario fromUser
 class Peticiones(models.Model):
     fromUser = models.ForeignKey(Usuario, related_name='from_usr', on_delete=models.CASCADE)
     toUser = models.ForeignKey(Usuario, related_name='to_usr', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.fromUser) + ' quiere seguir a ' + str(self.toUser)
 
 class Premium(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                              related_name='Premium')
 
     def __str__(self):
-        return self.UsuarioRegistrado.NombreUsuario
+        return str(self.UsuarioRegistrado)
 
 
 class NoPremium(models.Model):
@@ -79,17 +94,19 @@ class NoPremium(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                              related_name='NoPremium')
     NumSalt = models.IntegerField()
+    pidePremium = models.BooleanField(null=False, default=False)
 
     def __str__(self):
-        return self.UsuarioRegistrado.NombreUsuario
+        return str(self.UsuarioRegistrado)
 
 
 class CreadorContenido(models.Model):
     UsuarioRegistrado = models.OneToOneField(Usuario, null=False, blank=False, on_delete=models.CASCADE,
                                              related_name='CreadorContenido')
 
+
     def __str__(self):
-        return self.UsuarioRegistrado.NombreUsuario
+        return str(self.UsuarioRegistrado)
 
 
 class Audio(models.Model):

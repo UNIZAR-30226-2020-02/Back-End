@@ -594,30 +594,6 @@ def GetLastSong(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# Permite que un susario
-# siga a otro
-@api_view(['POST'])
-def Follow(request):
-    if request.method == "POST":
-
-        try:
-            hashname = encrypt(str.encode(request.data['Usuario'])).hex()
-            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
-            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
-            user.follow(follower)
-            return Response(status=status.HTTP_200_OK)
-
-        except Usuario.DoesNotExist:
-
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        except KeyError:
-
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    else:
-
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 # Devulve los seguidores
@@ -1009,7 +985,7 @@ def updatePlaylist(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# de un determinado genero
+#Devuelve todas las canciones de una playlist
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def GetPlaylistSongs(request):
@@ -1330,10 +1306,10 @@ def AddUserFollowResquest(request):
     if request.method == "POST":
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
-            hashnamefollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            hashnamefollower = encrypt(str.encode(request.data['Seguido'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            follower = Usuario.objects.get(Q(NombreUsuario=hashnamefollower) | Q(Correo=hashnamefollower))
-            user.addRequest(follower)
+            followed = Usuario.objects.get(Q(NombreUsuario=hashnamefollower) | Q(Correo=hashnamefollower))
+            user.addRequest(followed)
             return Response(status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
@@ -1433,8 +1409,7 @@ def GetAllArtists(request):
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
-# Devuelve las solicitudes de amistad
-# de un usuario
+# Devuelve las solicitudes de amistad hacia un usuario
 @api_view(['GET'])
 def GetFollowRequests(request):
 
@@ -1568,6 +1543,241 @@ def Search(request):
 
 
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+
+
+# Permite que un usuario deje de seguir a un usuario ya seguido
+@api_view(['POST'])
+def Unfollow(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguido'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            followed = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            user.unFollow(followed)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Elimina una solicitud de seguir:
+# Eliminar una solicitud mandada por ti: NombreUsuario='NombreUsuario'  , Seguido= 'Seguido'
+@api_view(['POST'])
+def RemoveUserFollowResquest(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguido'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            followed = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            user.removeRequest(followed)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# Elimina una solicitud de seguir
+# Rechazar una solicitud que te han mandado:
+@api_view(['POST'])
+def RejectFollowResquest(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            follower.removeRequest(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+# El usuario 'NombreUsuario' elimina el seguidor 'Seguidor'
+# (Eliminar 'NombreUsuario' de la lista de seguidos de 'Seguidor' )
+@api_view(['POST'])
+def RemoveFollower(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            follower.removeFollower(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Añade al a 'seguidor' en los seguidores de 'Usuario'
+#  Además, elimina la solicitud del usuario 'seguidor'
+
+@api_view(['POST'])
+def Follow(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashfollower = encrypt(str.encode(request.data['Seguidor'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            follower = Usuario.objects.get(Q(NombreUsuario=hashfollower) | Q(Correo=hashfollower))
+            follower.follow(user)
+            follower.removeRequest(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+
+# Devuelve todas las canciones
+# de un determinado album
+@api_view(['GET'])
+@parser_classes([JSONParser])
+def GetSongByAlbum(request):
+    if request.method == "GET":
+
+        try:
+
+            listaOfArtists = []
+            listOfAlbuns = []
+            listOfGeneros = []
+            listOfImages = []
+            listOfSongs = []
+            data = {}
+            songs = Album.objects.get(NombreAlbum=request.query_params['NombreAlbum']).Canciones.all()
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            for index in range(songs.count()):
+
+                artistsOfSong = songs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listaOfArtists += [artistsOfSong[index2].Nombre]
+                albunsOfSong = songs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+                genreOfSong = Genero.objects.filter(Canciones=songs[index])
+                for index4 in genreOfSong:
+                    listOfGeneros.append(index4.Nombre)
+
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'EsFavorita'})]
+                listOfSongs[index]['Artistas'] = listaOfArtists
+                listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albumes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbum'] = listOfImages
+                listOfSongs[index]['Generos'] = listOfGeneros
+                listOfSongs[index]['EsFavorita'] = songs[index].UsuariosComoFavorita.all().filter(
+                    NombreUsuario=hashname).exists()
+                data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                listaOfArtists = []
+                listOfAlbuns = []
+                listOfImages = []
+                listOfGeneros = []
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Album.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+#Devuelve los albumes de un artista, y su foto
+@api_view(['GET'])
+# @parser_classes([JSONParser])
+def GetArtistAlbums(request):
+    data = {}
+    if request.method == "GET":
+        try:
+            artist=Artista.objects.get(Nombre=request.query_params['NombreArtista'])
+
+            #for a in Album.objects.filter(Canciones__in=Artista.Canciones.objects.all()):
+            for a in Album.objects.filter(Canciones__in=artist.Canciones.all()):
+                data[a.NombreAlbum]=a.getFotoDelAlbum(request.META['HTTP_HOST'])
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Artista.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Devuelve 15 random albums y su conjunto de imágenes
+#  de un determinado usuario
+@api_view(['GET'])
+# @parser_classes([JSONParser])
+def GetRandomAlbums(request):
+    data = {}
+    if request.method == "GET":
+        try:
+            for a in Album.objects.filter()[:15]:
+                data[a.NombreAlbum]=a.getFotoDelAlbum(request.META['HTTP_HOST'])
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except Album.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['POST'])
+def AskForPremium(request):
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            nopremium=NoPremium.objects.get(UsuarioRegistrado=user)
+            nopremium.pidePremium=True
+            nopremium.save()
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
