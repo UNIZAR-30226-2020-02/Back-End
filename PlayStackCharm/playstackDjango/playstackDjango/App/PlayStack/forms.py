@@ -17,4 +17,10 @@ class AudioForm(forms.ModelForm):
 
     class Meta:
         model = Audio
-        fields = ['FicheroDeAudio', 'Titulo', 'Idioma', 'Duracion']
+        fields = ['Titulo', 'Idioma', 'Duracion','CreadorDeContenido','FicheroDeAudio']
+
+class AlbumForm(forms.ModelForm):
+    class Meta:
+        model = Album
+        fields = ['NombreAlbum', 'Fecha', 'FotoDelAlbum']
+

@@ -32,6 +32,8 @@ urlpatterns = [
     url('usuarios/', include(user_resource.urls)),
     url('search/', views.Search, name='Search'),
     url('create/folder', views.CreateFolder, name='CreateFolder'),  # *
+    url('create/album', views.CreateAlbum, name='CreateAlbum'),
+    url('create/song', views.CreateSong, name='CreateSong'),
     url('create/user', views.CreateUser, name='CreateUser'),    # *
     url('create/user/withimg', views.CreateUserImg, name='CreateUserImg'), # * Falta poner fichero
     url('create/playlist', views.CreatePlayList, name='CreatePlayList'),

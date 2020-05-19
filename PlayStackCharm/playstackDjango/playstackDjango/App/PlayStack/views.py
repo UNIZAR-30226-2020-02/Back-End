@@ -1902,3 +1902,61 @@ def GetMostListenedSongs(request):
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['POST'])
+def CreateAlbum(request):
+    inform = {'inform': ''}
+
+    if request.method == 'POST':
+
+        hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+        if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+            del request.data['NombreUsuario']
+            request.data['Fecha'] = datetime.datetime.strptime(request.data['Fecha'], '%d/%m/%Y')
+            form = AlbumForm(request.data, request.FILES)
+            if form.is_valid():
+                form.save()
+                inform['inform'] = 'Album creado correctamente'
+                return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
+            else:
+                inform['inform'] = 'Campos invalidos'
+
+        else:
+            inform['inform'] = 'El usuario no tiene permisos'
+        return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        inform['inform'] = 'La peticion debe ser POST'
+        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def CreateSong(request):
+    inform = {'inform': ''}
+
+    if request.method == 'POST':
+
+        hashname = encrypt(str.encode(request.data['CreadorDeContenido'])).hex()
+        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+        if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+            #del request.data['NombreUsuario']
+            request.data['CreadorDeContenido'] = user
+            request.data['Duracion'] = float(request.data['Duracion'])
+            print(request.data)
+            form = AudioForm(request.data, request.FILES)
+            if form.is_valid():
+                song = form.save()
+                Cancion(AudioRegistrado=song).save()
+                inform['inform'] = 'Cancion creado correctamente'
+                return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
+            else:
+                inform['inform'] = 'Campos invalidos'
+
+        else:
+            inform['inform'] = 'El usuario no tiene permisos'
+        return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        inform['inform'] = 'La peticion debe ser POST'
+        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
