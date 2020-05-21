@@ -31,7 +31,7 @@ class Usuario(models.Model):
             toUser=user)
         return relacion
 
-    # Añade una peticion del usuario self al usuario user
+    # Anyade una peticion del usuario self al usuario user
     def addRequest(self, user):
         peticion, created = Peticiones.objects.get_or_create(
             fromUser=self,
@@ -208,7 +208,8 @@ class Carpeta(models.Model):
 
 class Capitulo(models.Model):
     AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
-    Fecha = models.DateField(null=False)
+    Fecha = models.DateTimeField(null=False)
+    #NumCap = models.IntegerField(null=False,blank=False)
 
     def __str__(self):
         formato = 'Capitulo {0} subida por {1}'
