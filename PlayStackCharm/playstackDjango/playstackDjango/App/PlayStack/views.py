@@ -2031,3 +2031,53 @@ def CreatePodcast(request):
     else:
         inform['inform'] = 'La peticion debe ser POST'
         return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def FollowPodcast(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            Podcast.objects.get(Nombre=request.data['NombrePodcast']).Subscriptores.add(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Podcast.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def UnfollowPodcast(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            Podcast.objects.get(Nombre=request.data['NombrePodcast']).Subscriptores.remove(user)
+            return Response(status=status.HTTP_200_OK)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except Podcast.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)

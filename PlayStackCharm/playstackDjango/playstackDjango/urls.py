@@ -88,7 +88,9 @@ urlpatterns = [
     url('user/remove/playlist/', views.removePlaylist, name='removePlaylist'),
     url('user/remove/folder/', views.removeFolder, name='removeFolder'),
     url('user/search', views.SearchUser, name='SearchUser'),
+    url('user/follow/podcast', views.FollowPodcast, name='FollowPodcast'),
     url('user/follow', views.Follow, name='Follow'),     #Aceptar solicitud de follow
+    url('user/unfollow/podcast', views.UnfollowPodcast, name='UnfollowPodcast'),
     url('user/unfollow', views.Unfollow, name='Unfollow'),
     url('user/askforpremium', views.AskForPremium, name='AskForPremium')
 
