@@ -115,7 +115,7 @@ class CreadorContenido(models.Model):
 class Audio(models.Model):
     ID = models.AutoField(primary_key=True)
     FicheroDeAudio = models.FileField(null=False, upload_to='audio')
-    Titulo = models.CharField(max_length=30, null=False)
+    Titulo = models.CharField(max_length=50, null=False)
     Idioma = models.CharField(max_length=15, null=False)
     Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)
     CreadorDeContenido = models.ForeignKey(CreadorContenido, null=False, blank=False,
@@ -176,6 +176,7 @@ class Genero(models.Model):
     Nombre = models.CharField(max_length=100, null=False)
     # Por el momento se puden crear Geenros vacios
     Canciones = models.ManyToManyField(Cancion, blank=True, related_name='Generos')
+    Foto = models.ImageField(upload_to='images')
 
     def __str__(self):
         return self.Nombre
