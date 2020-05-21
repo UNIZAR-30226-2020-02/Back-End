@@ -1499,6 +1499,8 @@ def Search(request):
             allAlbumes = Album.objects.all()
 
             keyWord = re.compile(request.query_params['KeyWord'], re.IGNORECASE)
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
@@ -1526,12 +1528,14 @@ def Search(request):
                     for index4 in genreOfSong:
                         listOfGeneros.append(index4.Nombre)
 
-                    listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum'})]
+                    listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'EsFavorita'})]
                     listOfSongs[element]['Artistas'] = listaOfArtists
                     listOfSongs[element]['url'] = allSongs[index].getURL(request.META['HTTP_HOST'])
                     listOfSongs[element]['Albumes'] = listOfAlbuns
                     listOfSongs[element]['Generos'] = listOfGeneros
                     listOfSongs[element]['ImagenesAlbum'] = listOfImages
+                    print(allSongs[index].UsuariosComoFavorita.all())
+                    listOfSongs[element]['EsFavorita'] = user in allSongs[index].UsuariosComoFavorita.all()
 
                     songs[allSongs[index].AudioRegistrado.Titulo] = listOfSongs[element]
                     listaOfArtists = []
