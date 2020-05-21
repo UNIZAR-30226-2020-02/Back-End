@@ -769,22 +769,16 @@ def SearchUserSocial(request):
             data = {}
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-            allUsers = Usuario.objects.all()
-            keyWord = re.compile(request.query_params['KeyWord'])
-            for index in range(allUsers.count()):
 
-                decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
-                if re.search(keyWord, decodename):
-                    userList={}
-                    hashname = encrypt(str.encode(decodename)).hex()
-                    user2=Usuario.objects.get(NombreUsuario=hashname)
-                    userList['Foto']= user2.getFotoDePerfil(request.META['HTTP_HOST'])
-                    userList['Seguidor'] = user in user2.Seguidos.all()
-                    userList['Seguido'] = user2 in user.Seguidos.all()
-                    userList['EnviadaSolicitud'] = user2 in user.SolicitudAmistad.all()
-                    userList['RecibidaSolicitud'] = user in user2.SolicitudAmistad.all()
+            hashname2 = encrypt(str.encode(request.query_params['NombreOtroUsuario'])).hex()
+            user2 = Usuario.objects.get(Q(NombreUsuario=hashname2) | Q(Correo=hashname2))
 
-                    data[decodename]=userList
+            data['Foto']= user2.getFotoDePerfil(request.META['HTTP_HOST'])
+            data['Seguidor'] = user in user2.Seguidos.all()
+            data['Seguido'] = user2 in user.Seguidos.all()
+            data['EnviadaSolicitud'] = user2 in user.SolicitudAmistad.all()
+            data['RecibidaSolicitud'] = user in user2.SolicitudAmistad.all()
+
             #data['Usuarios'] = listOfUsers
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except KeyError:
