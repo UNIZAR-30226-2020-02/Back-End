@@ -734,23 +734,58 @@ def AddSongToListened(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# Dada una palbra clave
+# Dado un usuario
 # retorna un conjunto de
-# usuario
+# usuario y su foto
 @api_view(['GET'])
 def SearchUser(request):
     if request.method == "GET":
         try:
-            data = {'Usuarios': ''}
-            listOfUsers = []
+            data = {}
             allUsers = Usuario.objects.all()
             keyWord = re.compile(request.query_params['KeyWord'])
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
                 if re.search(keyWord, decodename):
-                    listOfUsers += [decodename]
-            data['Usuarios'] = listOfUsers
+                    #listOfUsers += [decodename]
+                    hashname = encrypt(str.encode(decodename)).hex()
+                    data[decodename]=Usuario.objects.get(NombreUsuario=hashname).getFotoDePerfil(request.META['HTTP_HOST'])
+            #data['Usuarios'] = listOfUsers
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Dado un usuario y una palabra clave (que representa a otro usuario),
+# devuelve las relaciones sociales del primer usuario con el segundo (y su foto)
+@api_view(['GET'])
+def SearchUserSocial(request):
+    if request.method == "GET":
+        try:
+            data = {}
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            allUsers = Usuario.objects.all()
+            keyWord = re.compile(request.query_params['KeyWord'])
+            for index in range(allUsers.count()):
+
+                decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
+                if re.search(keyWord, decodename):
+                    userList={}
+                    hashname = encrypt(str.encode(decodename)).hex()
+                    user2=Usuario.objects.get(NombreUsuario=hashname)
+                    userList['Foto']= user2.getFotoDePerfil(request.META['HTTP_HOST'])
+                    userList['Seguidor'] = user in user2.Seguidos.all()
+                    userList['Seguido'] = user2 in user.Seguidos.all()
+                    userList['EnviadaSolicitud'] = user2 in user.SolicitudAmistad.all()
+                    userList['RecibidaSolicitud'] = user in user2.SolicitudAmistad.all()
+
+                    data[decodename]=userList
+            #data['Usuarios'] = listOfUsers
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)

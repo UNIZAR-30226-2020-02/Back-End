@@ -117,7 +117,7 @@ class Audio(models.Model):
     FicheroDeAudio = models.FileField(null=False, upload_to='audio')
     Titulo = models.CharField(max_length=50, null=False)
     Idioma = models.CharField(max_length=15, null=False)
-    Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)
+    Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     CreadorDeContenido = models.ForeignKey(CreadorContenido, null=False, blank=False,
                                            on_delete=models.CASCADE)
 
@@ -219,6 +219,15 @@ class Capitulo(models.Model):
     def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
+    def getPodcast(self):
+        return Podcast.objects.get(Capitulos=self)
+
+class Tematica(models.Model):
+    ID = models.AutoField(primary_key=True)
+    Nombre = models.CharField(max_length=30, null=False, unique=True)
+
+    def __str__(self):
+        return self.Nombre
 
 class Podcast(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
@@ -226,6 +235,7 @@ class Podcast(models.Model):
     Subscriptores = models.ManyToManyField(Usuario, blank=True, related_name='Suscrito')
     Capitulos = models.ManyToManyField(Capitulo, blank=True, related_name='Capitulos')
     FotoDelPodcast = models.ImageField(upload_to='images')
+    Tematica = models.ForeignKey(Tematica, null=True, blank=True,on_delete=models.CASCADE, related_name='Tematica')
 
     def __str__(self):
         return self.Nombre
@@ -252,3 +262,5 @@ class AudioEscuchado(models.Model):
 
     class Meta:
         unique_together = ('Usuario', 'Audio', 'TimeStamp')
+
+

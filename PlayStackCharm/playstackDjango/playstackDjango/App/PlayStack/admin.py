@@ -22,6 +22,7 @@ admin.site.register(Interlocutor)
 admin.site.register(AudioEscuchado)
 admin.site.register(Relacion)
 admin.site.register(Peticiones)
+#admin.site.register(Tematica)
 
 
 
@@ -102,7 +103,7 @@ class NoPremiumAdmin(admin.ModelAdmin):
     actions = ['toPodcast']
 
     def toPodcast(self, request, queryset):
-        podcastName=''
+        podcastName='Aprender a programar'
         podcast=Podcast.objects.get(Nombre=podcastName)
         for i in queryset:
             podcast.Capitulos.add(i)
