@@ -33,6 +33,7 @@ urlpatterns = [
     url('search/', views.Search, name='Search'),
     url('create/folder', views.CreateFolder, name='CreateFolder'),  # *
     url('create/album', views.CreateAlbum, name='CreateAlbum'),
+    url('create/podcast', views.CreatePodcast, name='CreatePodcast'),
     url('create/song', views.CreateSong, name='CreateSong'),
     url('create/podcastchapter', views.CreateCapituloPodcast, name='CreateCapituloPodcast'),
     url('create/user', views.CreateUser, name='CreateUser'),    # *
