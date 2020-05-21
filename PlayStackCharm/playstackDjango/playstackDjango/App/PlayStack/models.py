@@ -222,7 +222,7 @@ class Podcast(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
     Descripcion = models.TextField(null=False)
     Subscriptores = models.ManyToManyField(Usuario, blank=True, related_name='Suscrito')
-    Capitulos = models.ManyToManyField(Capitulo, blank=False, related_name='Capitulos')
+    Capitulos = models.ManyToManyField(Capitulo, blank=True, related_name='Capitulos')
     FotoDelPodcast = models.ImageField(upload_to='images')
 
     def __str__(self):

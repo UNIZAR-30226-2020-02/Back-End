@@ -717,7 +717,7 @@ def AddSongToListened(request):
             hashname = encrypt(str.encode(request.data['Usuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             audio = Audio.objects.get(Titulo=request.data['Titulo'])
-            AudioEscuchado(Usuario=user, Audio=audio, TimeStamp=datetime.datetime.strptime(request.data['Timestamp'], '%d/%m/%Y %H:%M:%S')).save()
+            AudioEscuchado(Usuario=user, Audio=audio, TimeStamp=datetime.datetime.strptime(request.data['Timestamp'], '%Y/%m/%d %H:%M:%S')).save()
             return Response(status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
 
@@ -1911,22 +1911,26 @@ def CreateAlbum(request):
     if request.method == 'POST':
 
         hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
-        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+        try:
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
 
-        if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
-            del request.data['NombreUsuario']
-            request.data['Fecha'] = datetime.datetime.strptime(request.data['Fecha'], '%d/%m/%Y')
-            form = AlbumForm(request.data, request.FILES)
-            if form.is_valid():
-                form.save()
-                inform['inform'] = 'Album creado correctamente'
-                return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+                del request.data['NombreUsuario']
+                request.data['Fecha'] = datetime.datetime.strptime(request.data['Fecha'], '%Y/%m/%d')
+                form = AlbumForm(request.data, request.FILES)
+                if form.is_valid():
+                    form.save()
+                    inform['inform'] = 'Album creado correctamente'
+                    return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
+                else:
+                    inform['inform'] = 'Campos invalidos'
+
             else:
-                inform['inform'] = 'Campos invalidos'
-
-        else:
-            inform['inform'] = 'El usuario no tiene permisos'
-        return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+                inform['inform'] = 'El usuario no tiene permisos'
+            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+        except Usuario.DoesNotExist:
+            inform['inform'] = 'El usuario no existe'
+            return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
     else:
         inform['inform'] = 'La peticion debe ser POST'
         return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -1937,21 +1941,58 @@ def CreateSong(request):
 
     if request.method == 'POST':
 
-        hashname = encrypt(str.encode(request.data['CreadorDeContenido'])).hex()
+        hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+        try:
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+                del request.data['NombreUsuario']
+                request.data['CreadorDeContenido'] = CreadorContenido.objects.get(UsuarioRegistrado=user)
+                request.data['Duracion'] = float(request.data['Duracion'])
+                form = AudioForm(request.data, request.FILES)
+
+                if form.is_valid():
+                    song = form.save()
+                    Cancion(AudioRegistrado=song).save()
+                    inform['inform'] = 'Cancion creado correctamente'
+                    return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
+                else:
+
+                    inform['inform'] = 'Campos invalidos'
+
+            else:
+                inform['inform'] = 'El usuario no tiene permisos'
+            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+        except Usuario.DoesNotExist:
+            inform['inform'] = 'El usuario no existe'
+            return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
+    else:
+        inform['inform'] = 'La peticion debe ser POST'
+        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def CreateCapituloPodcast(request):
+    inform = {'inform': ''}
+
+    if request.method == 'POST':
+
+        hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
         user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
 
         if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
-            #del request.data['NombreUsuario']
-            request.data['CreadorDeContenido'] = user
+            del request.data['NombreUsuario']
+            request.data['CreadorDeContenido'] = CreadorContenido.objects.get(UsuarioRegistrado=user)
             request.data['Duracion'] = float(request.data['Duracion'])
-            print(request.data)
+            request.data['Fecha'] = datetime.datetime.strptime(request.data['Fecha'], '%Y/%m/%d')
             form = AudioForm(request.data, request.FILES)
+
             if form.is_valid():
                 song = form.save()
-                Cancion(AudioRegistrado=song).save()
+                Capitulo(AudioRegistrado=song,Fecha=request.data['Fecha']).save()
                 inform['inform'] = 'Cancion creado correctamente'
                 return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
             else:
+
                 inform['inform'] = 'Campos invalidos'
 
         else:

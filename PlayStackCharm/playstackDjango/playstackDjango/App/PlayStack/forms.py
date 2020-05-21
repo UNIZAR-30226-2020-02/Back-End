@@ -17,10 +17,15 @@ class AudioForm(forms.ModelForm):
 
     class Meta:
         model = Audio
-        fields = ['Titulo', 'Idioma', 'Duracion','CreadorDeContenido','FicheroDeAudio']
+        fields = ['FicheroDeAudio', 'Titulo', 'Idioma', 'Duracion', 'CreadorDeContenido']
 
+# Crea un album en la base de datos
 class AlbumForm(forms.ModelForm):
     class Meta:
         model = Album
         fields = ['NombreAlbum', 'Fecha', 'FotoDelAlbum']
 
+class PodcastForm(forms.ModelForm):
+    class Meta:
+        model = Podcast
+        fields = ['Nombre', 'Descripcion', 'FotoDelPodcast']
