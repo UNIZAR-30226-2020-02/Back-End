@@ -1490,6 +1490,7 @@ def Search(request):
             songs = {}
             playlists = {}
             podcasts = {}
+
             element = 0
             allUsers = Usuario.objects.all()
             allSongs = Cancion.objects.all()
@@ -1503,7 +1504,11 @@ def Search(request):
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
 
                 if re.search(keyWord, decodename):
-                    listOfUsers += [decodename]
+                    listOfUsers += [dict.fromkeys({'Nombre', 'Foto'})]
+                    listOfUsers[element]['Nombre'] = decodename
+                    listOfUsers[element]['Foto'] = allUsers[index].getFotoDePerfil(request.META['HTTP_HOST'])
+                    element += 1
+            element = 0
             data['Usuarios'] = listOfUsers
 
             for index in range(allSongs.count()):
