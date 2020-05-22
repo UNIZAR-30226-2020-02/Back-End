@@ -953,7 +953,7 @@ def GetUserPublicPlaylists(request):
                 fotos = []
                 i = 0
                 for c in p.Canciones.order_by('id')[:4]:
-                    album = Album.objects.get(Canciones=c)
+                    album = (Album.objects.filter(Canciones=c)).first()
                     fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                     i = i + 1
                 if i > 0:
