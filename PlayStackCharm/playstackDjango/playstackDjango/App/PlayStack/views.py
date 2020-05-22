@@ -1883,14 +1883,67 @@ def GetAllPodcasts(request):
         data = {}
 
         for index in range(allPodcasts.count()):
-
             data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
 
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetPodcastByTema(request):
+
+    if request.method == "GET":
+
+        tema=Tematica.objects.get(Nombre=request.query_params['NombreTema'])
+        allPodcasts = Podcast.objects.filter(Tematica=tema)
+        data = {}
+
+        for index in range(allPodcasts.count()):
+            data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
+
+        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetPodcastByInterlocutor(request):
+
+    if request.method == "GET":
+
+        podcaster=Interlocutor.objects.get(Nombre=request.query_params['NombreInterlocutor'])
+        allPodcasts = podcaster.Podcasts.all()
+        data = {}
+
+        for index in range(allPodcasts.count()):
+            data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
+
+        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetSubscribedPodcast(request):
+    if request.method == "GET":
+        try:
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+            allPodcasts = Podcast.objects.filter(Subscriptores=user)
+            data = {}
+
+            for index in range(allPodcasts.count()):
+                data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
-
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
 
 @api_view(['GET'])
 def GetPodcastCaps(request):
@@ -1919,6 +1972,7 @@ def GetPodcastCaps(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
 
 @api_view(['GET'])
 def GetMostListenedSongs(request):
