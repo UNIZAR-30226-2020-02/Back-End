@@ -1542,11 +1542,11 @@ def Search(request):
             podcasts = {}
 
             element = 0
-            allArtists = Artista.objects.all()
-            allSongs = Cancion.objects.all()
-            allPlayLists = PlayList.objects.all()
-            allPodcasts = Podcast.objects.all()
-            allAlbumes = Album.objects.all()
+            allArtists = Artista.objects.all()[:5]
+            allSongs = Cancion.objects.all()[:5]
+            allPlayLists = PlayList.objects.all()[:5]
+            allPodcasts = Podcast.objects.all()[:5]
+            allAlbumes = Album.objects.all()[:5]
 
             keyWord = re.compile(request.query_params['KeyWord'], re.IGNORECASE)
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
@@ -2317,15 +2317,20 @@ def RemoveAudio(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 @api_view(['POST'])
-def SongChangeAlbum(request):
+def SongUpdate(request):
 
     if request.method == "POST":
         try:
             hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+                audio = Audio.objects.get(Titulo=request.data['Titulo'])
+                audio.Titulo = request.data['Titulo']
+                audio.Duracion = float(request.data['Duracion'])
+                audio.FicheroDeAudio = request.data['FicheroDeAudio']
+                audio.Idioma = request.data['Idioma']
+                audio.save()
 
-                Audio.objects.get(Titulo=request.data['Titulo']).delete()
                 return Response(status=status.HTTP_200_OK)
             else:
                 return Response(status=status.HTTP_404_NOT_FOUND)
@@ -2334,6 +2339,47 @@ def SongChangeAlbum(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['POST'])
+def ChapterUpdate(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+                audio = Audio.objects.get(Titulo=request.data['Titulo'])
+                capitulo = Capitulo.objects.get(AudioRegistrado=audio)
+                audio.Titulo = request.data['Titulo']
+                audio.Duracion = float(request.data['Duracion'])
+                audio.FicheroDeAudio = request.data['FicheroDeAudio']
+                audio.Idioma = request.data['Idioma']
+                capitulo.Fecha = datetime.datetime.strptime(request.data['Fecha'], '%Y/%m/%d')
+                capitulo.save()
+                audio.save()
+
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Capitulo.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
 
