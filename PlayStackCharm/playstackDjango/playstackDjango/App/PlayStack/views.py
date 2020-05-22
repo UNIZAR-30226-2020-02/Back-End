@@ -1440,6 +1440,26 @@ def GetAllArtists(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
+# La funcion devuelve los ultimos  20
+# audios escuchados por un usuario
+@api_view(['GET'])
+def GetAllGenders(request):
+    if request.method == "GET":
+        data = {}
+        try:
+            for a in Genero.objects.all():
+                data[a.Nombre] = a.getFoto(request.META['HTTP_HOST'])
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Genero.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
 # Devuelve las solicitudes de amistad hacia un usuario
 @api_view(['GET'])
 def GetFollowRequests(request):

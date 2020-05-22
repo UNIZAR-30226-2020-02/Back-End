@@ -181,6 +181,8 @@ class Genero(models.Model):
     def __str__(self):
         return self.Nombre
 
+    def getFoto(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.Foto.name
 
 class PlayList(models.Model):
     ID = models.AutoField(primary_key=True)
