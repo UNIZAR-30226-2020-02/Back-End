@@ -900,7 +900,7 @@ def AddSongToPlayList(request):
 @api_view(['GET'])
 # @parser_classes([JSONParser])
 def GetUserPlaylists(request):
-    print(request.query_params['NombreUsuario'])
+    #print(request.query_params['NombreUsuario'])
     data = {}
     if request.method == "GET":
         try:
@@ -916,7 +916,7 @@ def GetUserPlaylists(request):
                 fotos = []
                 i = 0
                 for c in p.Canciones.order_by('id')[:4]:
-                    album = Album.objects.get(Canciones=c)
+                    album = (Album.objects.filter(Canciones=c)).first()
                     fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                     i = i + 1
                 if i > 0:
