@@ -938,15 +938,15 @@ def GetUserPlaylists(request):
 @api_view(['GET'])
 # @parser_classes([JSONParser])
 def GetUserPublicPlaylists(request):
-    print(request.query_params['NombreUsuario'])
+    #print(request.query_params['NombreUsuario'])
     data = {}
-    playlist = {'Fotos': [], 'Privado': 'True'}
     if request.method == "GET":
         try:
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
 
             for p in PlayList.objects.filter(UsuarioNombre=user, Privado=False):
+                playlist = {'Fotos': [], 'Privado': 'True'}
                 nombre = p.Nombre
                 esPrivado = p.Privado
                 playlist['Privado'] = esPrivado
