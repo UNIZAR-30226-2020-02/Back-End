@@ -1951,11 +1951,17 @@ def GetPodcastCaps(request):
             pod = Podcast.objects.get(Nombre=request.query_params['NombrePodcast'])
             data['Foto']= pod.getFotoDelPodcast(request.META['HTTP_HOST'])
             data['Tema']= str(pod.Tematica)
+            data['idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
+            interlocutores=[]
+            for i in Interlocutor.objects.filter(Podcasts=pod):
+                interlocutores.append(str(i))
+            data['Interlocutores'] = interlocutores
+            data['Descripcion'] = pod.Descripcion
             capitulos=[]
             i=1
             for cap in pod.Capitulos.all().order_by('Fecha'):
                 capitulo={}
-                capitulo['numCap'] = i
+                capitulo['numChapter'] = i
                 capitulo['nombre']=str(cap.AudioRegistrado)
                 capitulo['fecha'] = str(cap.Fecha)
                 capitulo['url'] = cap.AudioRegistrado.getURL(request.META['HTTP_HOST'])
