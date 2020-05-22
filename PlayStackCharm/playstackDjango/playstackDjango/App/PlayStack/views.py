@@ -744,7 +744,7 @@ def SearchUser(request):
         try:
             data = {}
             allUsers = Usuario.objects.all()
-            keyWord = re.compile(request.query_params['KeyWord'])
+            keyWord = re.compile(request.query_params['KeyWord'], re.IGNORECASE)
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
@@ -2262,6 +2262,62 @@ def UnfollowPodcast(request):
 
 @api_view(['POST'])
 def RemoveAudio(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+
+                Audio.objects.get(Titulo=request.data['Titulo']).delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def RemoveAudio(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+
+                Audio.objects.get(Titulo=request.data['Titulo']).delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def SongChangeAlbum(request):
 
     if request.method == "POST":
         try:
