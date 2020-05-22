@@ -28,4 +28,4 @@ class AlbumForm(forms.ModelForm):
 class PodcastForm(forms.ModelForm):
     class Meta:
         model = Podcast
-        fields = ['Nombre', 'Descripcion', 'FotoDelPodcast']
+        fields = ['Nombre', 'Descripcion', 'Tematica','FotoDelPodcast']
