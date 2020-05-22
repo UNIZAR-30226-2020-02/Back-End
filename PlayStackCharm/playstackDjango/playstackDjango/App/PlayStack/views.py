@@ -1889,6 +1889,7 @@ def GetPodcastCaps(request):
                 capitulo['numCap'] = i
                 capitulo['nombre']=str(cap.AudioRegistrado)
                 capitulo['fecha'] = str(cap.Fecha)
+                capitulo['url'] = cap.AudioRegistrado.getURL(request.META['HTTP_HOST'])
                 capitulos.append(capitulo)
                 i=i+1
 
