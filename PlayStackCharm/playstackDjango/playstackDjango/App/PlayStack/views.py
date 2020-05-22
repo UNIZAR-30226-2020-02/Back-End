@@ -1873,6 +1873,33 @@ def GetAllPodcasts(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 @api_view(['GET'])
+def GetPodcastCaps(request):
+
+    if request.method == "GET":
+        try:
+            data = {}
+            #print(request.query_params['NombrePodcast'])
+            pod = Podcast.objects.get(Nombre=request.query_params['NombrePodcast'])
+            data['Foto']= pod.getFotoDelPodcast(request.META['HTTP_HOST'])
+            data['Tema']= str(pod.Tematica)
+            capitulos=[]
+            i=1
+            for cap in pod.Capitulos.all().order_by('Fecha'):
+                capitulo={}
+                capitulo['numCap'] = i
+                capitulo['nombre']=str(cap.AudioRegistrado)
+                capitulo['fecha'] = str(cap.Fecha)
+                capitulos.append(capitulo)
+                i=i+1
+
+            data['capitulos'] = capitulos
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Podcast.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
 def GetMostListenedSongs(request):
 
     if request.method == "GET":

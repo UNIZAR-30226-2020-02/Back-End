@@ -22,7 +22,7 @@ admin.site.register(Interlocutor)
 admin.site.register(AudioEscuchado)
 admin.site.register(Relacion)
 admin.site.register(Peticiones)
-#admin.site.register(Tematica)
+admin.site.register(Tematica)
 
 
 

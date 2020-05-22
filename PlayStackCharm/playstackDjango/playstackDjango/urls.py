@@ -43,6 +43,7 @@ urlpatterns = [
     url('get/allsongs', views.GetAllSongs, name='GetAllSongs'), # *
     url('get/allartists', views.GetAllArtists, name='GetAllArtists'),  # *
     url('get/allpodcasts', views.GetAllPodcasts, name='GetAllPodcasts'),
+    url('get/podcastCaps', views.GetPodcastCaps, name='GetPodcastCaps'),
     url('get/randomalbums', views.GetRandomAlbums, name='GetRandomAlbums'),  # *
     url('get/song/bygenre', views.GetSongByGenre, name='GetSongByGenre'), # *
     url('get/song/byartist', views.GetSongByArtist, name='GetSongByArtist'),  # *
