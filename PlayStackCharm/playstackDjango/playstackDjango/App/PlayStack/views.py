@@ -744,7 +744,7 @@ def SearchUser(request):
         try:
             data = {}
             allUsers = Usuario.objects.all()
-            keyWord = re.compile(request.query_params['KeyWord'])
+            keyWord = re.compile(request.query_params['KeyWord'], re.IGNORECASE)
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
@@ -2079,37 +2079,38 @@ def CreateSong(request):
         hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
 
         try:
-            #string1.split(',')
+
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
                 del request.data['NombreUsuario']
                 request.data['CreadorDeContenido'] = CreadorContenido.objects.get(UsuarioRegistrado=user)
                 request.data['Duracion'] = float(request.data['Duracion'])
-                print(request.data)
-                print(request.data['Artistas'])
-                request.data['Artistas'] = json.dumps(request.data['Artistas'])
-                print(request.data['Artistas'])
+                request.data['Artistas'] = request.data['Artistas'].split(',')
+                request.data['Generos'] = request.data['Generos'].split(',')
                 form = AudioForm(request.data, request.FILES)
 
                 for autor in request.data['Artistas']:
-                    print(autor)
+
                     if not Artista.objects.filter(Nombre=autor).exists():
-                        inform['inform'] = 'Autor' + autor +' no existe'
+                        inform['inform'] = 'Autor ' + autor +' no existe'
                         return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
                 for genero in request.data['Generos']:
                     if not Genero.objects.filter(Nombre=genero).exists():
-                        inform['inform'] = 'Genero' + genero +' no existe'
+                        inform['inform'] = 'Genero ' + genero +' no existe'
                         return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
 
-                if form.is_valid():
+                if form.is_valid() and Album.objects.filter(NombreAlbum=request.data['NombreAlbum']).exists():
 
                     audio = form.save()
-                    song = Cancion(AudioRegistrado=audio).save()
+                    Cancion(AudioRegistrado=audio).save()
+
                     for artista in request.data['Artistas']:
-                        Artista.objects.get(Nombre=artista).Canciones.add(song)
+                        Artista.objects.get(Nombre=artista).Canciones.add(Cancion.objects.get(AudioRegistrado=audio))
 
                     for genero in request.data['Generos']:
-                        Genero.objects.get(Nombre=genero).Canciones.add(song)
+                        Genero.objects.get(Nombre=genero).Canciones.add(Cancion.objects.get(AudioRegistrado=audio))
+
+                    Album.objects.filter(NombreAlbum=request.data['NombreAlbum']).all()[0].Canciones.add(Cancion.objects.get(AudioRegistrado=audio))
                     inform['inform'] = 'Cancion creada correctamente'
                     return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
                 else:
@@ -2132,9 +2133,9 @@ def CreateSong(request):
 @api_view(['POST'])
 def CreateCapituloPodcast(request):
     inform = {'inform': ''}
-
+    print('llego')
     if request.method == 'POST':
-
+        print(request.data)
 
         hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
         try:
@@ -2145,21 +2146,20 @@ def CreateCapituloPodcast(request):
                 request.data['CreadorDeContenido'] = CreadorContenido.objects.get(UsuarioRegistrado=user)
                 request.data['Duracion'] = float(request.data['Duracion'])
                 request.data['Fecha'] = datetime.datetime.strptime(request.data['Fecha'], '%Y/%m/%d')
-                form = AudioForm(request.data, request.FILES)
+                request.data['Interlocutores'] = request.data['Interlocutores'].split(',')
                 for interlocutor in request.data['Interlocutores']:
-
                     if not Interlocutor.objects.filter(Nombre=interlocutor).exists():
-                        inform['inform'] = 'Interlocutor' + interlocutor +' no existe'
+                        inform['inform'] = 'Interlocutor ' + interlocutor + ' no existe'
                         return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
+                form = AudioForm(request.data, request.FILES)
 
-
-                if form.is_valid():
+                if form.is_valid() and Podcast.objects.filter(Nombre=request.data['NombrePodcast']).exists():
 
                     audio = form.save()
-                    chapter = Capitulo(AudioRegistrado=audio, Fecha=request.data['Fecha']).save()
+                    Capitulo(AudioRegistrado=audio, Fecha=request.data['Fecha']).save()
+                    Podcast.objects.filter(Nombre=request.data['NombrePodcast']).all()[0].Capitulos.add(Capitulo.objects.get(AudioRegistrado=audio))
                     for interlocutor in request.data['Interlocutores']:
-                        Interlocutor.objects.get(Nombre=interlocutor).Podcasts.add(chapter)
-
+                        Interlocutor.objects.get(Nombre=interlocutor).Podcasts.add(Podcast.objects.get(Nombre=request.data['NombrePodcast']))
                     inform['inform'] = 'Cancion creada correctamente'
                     return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
                 else:
@@ -2185,11 +2185,15 @@ def CreatePodcast(request):
         hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
         try:
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            request.data['Tema'] = Tematica.objects.get(Nombre=request.data['Tema'])
+
+
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
                 del request.data['NombreUsuario']
                 form = PodcastForm(request.data,request.FILES)
                 if form.is_valid():
                     form.save()
+
                     inform['inform'] = 'Podcast creado correctamente'
                     return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
                 else:
@@ -2245,6 +2249,91 @@ def UnfollowPodcast(request):
 
             return Response(status=status.HTTP_404_NOT_FOUND)
         except Podcast.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['POST'])
+def RemoveAudio(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+
+                Audio.objects.get(Titulo=request.data['Titulo']).delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def RemoveAudio(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+
+                Audio.objects.get(Titulo=request.data['Titulo']).delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Audio.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['POST'])
+def SongChangeAlbum(request):
+
+    if request.method == "POST":
+        try:
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
+
+                Audio.objects.get(Titulo=request.data['Titulo']).delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Audio.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
 

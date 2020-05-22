@@ -3,15 +3,15 @@ import json
 
 url = 'http://127.0.0.1:8000/create/song'
 
-datos = dict.fromkeys({'NombreUsuario', 'Titulo', 'Duracion', 'Idioma','Artistas', 'Generos'})
+datos = dict.fromkeys({'NombreUsuario', 'Titulo', 'Duracion', 'Idioma','Artistas', 'Generos','NombreAlbum'})
 d = {'uno': 'j'}
 datos['NombreUsuario'] = 'DiosCreador'
 datos['Titulo'] = 'CancionRemotaBien'
 datos['Duracion'] = 6.45
 datos['Idioma'] = 'Ingles'
-datos['Artistas'] = list(['value1', 'value2'])
-datos['Artistas'] = list(['value1', 'value2'])
-datos['Generos'] = ['Pop','Dance']
+datos['Artistas'] = 'Guille Placencia'
+datos['NombreAlbum'] = 'Logic'
+datos['Generos'] =  'Pop,Dance'
 headers = {'content-type': 'application/json'}
 file = {'FicheroDeAudio' : open('Eminem - Rap God.mp3' , 'rb')}
 headers = {'content-type': 'application/json'}
@@ -25,3 +25,4 @@ if request.status_code == 200:
 else:
 
     print('Error recivido: ', request.status_code)
+    print(request.json())
