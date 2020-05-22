@@ -735,23 +735,52 @@ def AddSongToListened(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
-# Dada una palbra clave
+# Dado un usuario
 # retorna un conjunto de
-# usuario
+# usuario y su foto
 @api_view(['GET'])
 def SearchUser(request):
     if request.method == "GET":
         try:
-            data = {'Usuarios': ''}
-            listOfUsers = []
+            data = {}
             allUsers = Usuario.objects.all()
             keyWord = re.compile(request.query_params['KeyWord'])
             for index in range(allUsers.count()):
 
                 decodename = decrypt(binascii.unhexlify(allUsers[index].NombreUsuario)).decode('ascii')
                 if re.search(keyWord, decodename):
-                    listOfUsers += [decodename]
-            data['Usuarios'] = listOfUsers
+                    #listOfUsers += [decodename]
+                    hashname = encrypt(str.encode(decodename)).hex()
+                    data[decodename]=Usuario.objects.get(NombreUsuario=hashname).getFotoDePerfil(request.META['HTTP_HOST'])
+            #data['Usuarios'] = listOfUsers
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+# Dado un usuario y una palabra clave (que representa a otro usuario),
+# devuelve las relaciones sociales del primer usuario con el segundo (y su foto)
+@api_view(['GET'])
+def SearchUserSocial(request):
+    if request.method == "GET":
+        try:
+            data = {}
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+
+            hashname2 = encrypt(str.encode(request.query_params['NombreOtroUsuario'])).hex()
+            user2 = Usuario.objects.get(Q(NombreUsuario=hashname2) | Q(Correo=hashname2))
+
+            data['Foto']= user2.getFotoDePerfil(request.META['HTTP_HOST'])
+            data['Seguidor'] = user in user2.Seguidos.all()
+            data['Seguido'] = user2 in user.Seguidos.all()
+            data['EnviadaSolicitud'] = user2 in user.SolicitudAmistad.all()
+            data['RecibidaSolicitud'] = user in user2.SolicitudAmistad.all()
+
+            #data['Usuarios'] = listOfUsers
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -872,7 +901,7 @@ def AddSongToPlayList(request):
 @api_view(['GET'])
 # @parser_classes([JSONParser])
 def GetUserPlaylists(request):
-    print(request.query_params['NombreUsuario'])
+    #print(request.query_params['NombreUsuario'])
     data = {}
     if request.method == "GET":
         try:
@@ -888,7 +917,7 @@ def GetUserPlaylists(request):
                 fotos = []
                 i = 0
                 for c in p.Canciones.order_by('id')[:4]:
-                    album = Album.objects.get(Canciones=c)
+                    album = (Album.objects.filter(Canciones=c)).first()
                     fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                     i = i + 1
                 if i > 0:
@@ -925,7 +954,7 @@ def GetUserPublicPlaylists(request):
                 fotos = []
                 i = 0
                 for c in p.Canciones.order_by('id')[:4]:
-                    album = Album.objects.get(Canciones=c)
+                    album = (Album.objects.filter(Canciones=c)).first()
                     fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                     i = i + 1
                 if i > 0:
@@ -1412,6 +1441,26 @@ def GetAllArtists(request):
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
+# La funcion devuelve los ultimos  20
+# audios escuchados por un usuario
+@api_view(['GET'])
+def GetAllGenders(request):
+    if request.method == "GET":
+        data = {}
+        try:
+            for a in Genero.objects.all():
+                data[a.Nombre] = a.getFoto(request.META['HTTP_HOST'])
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Genero.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    else:
+
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
 # Devuelve las solicitudes de amistad hacia un usuario
 @api_view(['GET'])
 def GetFollowRequests(request):
@@ -1837,6 +1886,34 @@ def GetAllPodcasts(request):
 
     else:
 
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+@api_view(['GET'])
+def GetPodcastCaps(request):
+
+    if request.method == "GET":
+        try:
+            data = {}
+            #print(request.query_params['NombrePodcast'])
+            pod = Podcast.objects.get(Nombre=request.query_params['NombrePodcast'])
+            data['Foto']= pod.getFotoDelPodcast(request.META['HTTP_HOST'])
+            data['Tema']= str(pod.Tematica)
+            capitulos=[]
+            i=1
+            for cap in pod.Capitulos.all().order_by('Fecha'):
+                capitulo={}
+                capitulo['numCap'] = i
+                capitulo['nombre']=str(cap.AudioRegistrado)
+                capitulo['fecha'] = str(cap.Fecha)
+                capitulo['url'] = cap.AudioRegistrado.getURL(request.META['HTTP_HOST'])
+                capitulos.append(capitulo)
+                i=i+1
+
+            data['capitulos'] = capitulos
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+        except Podcast.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 @api_view(['GET'])

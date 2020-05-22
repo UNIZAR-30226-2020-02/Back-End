@@ -31,7 +31,7 @@ class Usuario(models.Model):
             toUser=user)
         return relacion
 
-    # Añade una peticion del usuario self al usuario user
+    # Anyade una peticion del usuario self al usuario user
     def addRequest(self, user):
         peticion, created = Peticiones.objects.get_or_create(
             fromUser=self,
@@ -115,9 +115,9 @@ class CreadorContenido(models.Model):
 class Audio(models.Model):
     ID = models.AutoField(primary_key=True)
     FicheroDeAudio = models.FileField(null=False, upload_to='audio')
-    Titulo = models.CharField(max_length=30, null=False)
+    Titulo = models.CharField(max_length=50, null=False)
     Idioma = models.CharField(max_length=15, null=False)
-    Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=False)
+    Duracion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     CreadorDeContenido = models.ForeignKey(CreadorContenido, null=False, blank=False,
                                            on_delete=models.CASCADE)
 
@@ -176,10 +176,13 @@ class Genero(models.Model):
     Nombre = models.CharField(max_length=100, null=False)
     # Por el momento se puden crear Geenros vacios
     Canciones = models.ManyToManyField(Cancion, blank=True, related_name='Generos')
+    Foto = models.ImageField(upload_to='images')
 
     def __str__(self):
         return self.Nombre
 
+    def getFoto(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.Foto.name
 
 class PlayList(models.Model):
     ID = models.AutoField(primary_key=True)
@@ -208,7 +211,8 @@ class Carpeta(models.Model):
 
 class Capitulo(models.Model):
     AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)
-    Fecha = models.DateField(null=False)
+    Fecha = models.DateTimeField(null=False)
+    #NumCap = models.IntegerField(null=False,blank=False)
 
     def __str__(self):
         formato = 'Capitulo {0} subida por {1}'
@@ -217,6 +221,15 @@ class Capitulo(models.Model):
     def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
+    def getPodcast(self):
+        return Podcast.objects.get(Capitulos=self)
+
+class Tematica(models.Model):
+    ID = models.AutoField(primary_key=True)
+    Nombre = models.CharField(max_length=30, null=False, unique=True)
+
+    def __str__(self):
+        return self.Nombre
 
 class Podcast(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
@@ -224,6 +237,7 @@ class Podcast(models.Model):
     Subscriptores = models.ManyToManyField(Usuario, blank=True, related_name='Suscrito')
     Capitulos = models.ManyToManyField(Capitulo, blank=True, related_name='Capitulos')
     FotoDelPodcast = models.ImageField(upload_to='images')
+    Tematica = models.ForeignKey(Tematica, null=True, blank=True,on_delete=models.CASCADE, related_name='Tematica')
 
     def __str__(self):
         return self.Nombre
@@ -250,3 +264,5 @@ class AudioEscuchado(models.Model):
 
     class Meta:
         unique_together = ('Usuario', 'Audio', 'TimeStamp')
+
+

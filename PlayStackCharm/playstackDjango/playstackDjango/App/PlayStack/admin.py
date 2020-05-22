@@ -1,5 +1,5 @@
 from django.contrib import admin
-
+from datetime import datetime
 from playstackDjango.App.PlayStack.models import *
 
 from django.contrib.admin import SimpleListFilter
@@ -9,19 +9,20 @@ admin.site.register(Usuario)
 admin.site.register(Premium)
 #admin.site.register(NoPremium)
 admin.site.register(CreadorContenido)
-admin.site.register(Audio)
-admin.site.register(Cancion)
+#admin.site.register(Audio)
+#admin.site.register(Cancion)
 admin.site.register(Artista)
 admin.site.register(Album)
 admin.site.register(Genero)
 admin.site.register(PlayList)
 admin.site.register(Carpeta)
 admin.site.register(Podcast)
-admin.site.register(Capitulo)
+#admin.site.register(Capitulo)
 admin.site.register(Interlocutor)
 admin.site.register(AudioEscuchado)
 admin.site.register(Relacion)
 admin.site.register(Peticiones)
+admin.site.register(Tematica)
 
 
 
@@ -82,4 +83,51 @@ class NoPremiumAdmin(admin.ModelAdmin):
             Premium.objects.create(UsuarioRegistrado=user)
             i.delete()
 
+@admin.register(Audio)
+class NoPremiumAdmin(admin.ModelAdmin):
 
+    actions = ['toCancion','toCapitulo']
+    def toCancion(self, request, queryset):
+        for i in queryset:
+            Cancion.objects.create(AudioRegistrado=i)
+
+    def toCapitulo(self, request, queryset):
+        for i in queryset:
+            Capitulo.objects.create(AudioRegistrado=i, Fecha=datetime.now())
+
+
+
+@admin.register(Capitulo)
+class NoPremiumAdmin(admin.ModelAdmin):
+
+    actions = ['toPodcast']
+
+    def toPodcast(self, request, queryset):
+        podcastName='Aprender a programar'
+        podcast=Podcast.objects.get(Nombre=podcastName)
+        for i in queryset:
+            podcast.Capitulos.add(i)
+
+
+@admin.register(Cancion)
+class NoPremiumAdmin(admin.ModelAdmin):
+
+    actions = ['toGender','toArtist','toAlbum']
+
+    def toGender(self, request, queryset):
+        genderName=''
+        gender=Genero.objects.get(Nombre=genderName)
+        for i in queryset:
+            gender.Canciones.add(i)
+
+    def toArtist(self, request, queryset):
+        artistName=''
+        artist=Artista.objects.get(Nombre=artistName)
+        for i in queryset:
+            artist.Canciones.add(i)
+
+    def toAlbum(self, request, queryset):
+        albumName=''
+        album=Album.objects.get(Nombre=albumName)
+        for i in queryset:
+            album.Canciones.add(i)
