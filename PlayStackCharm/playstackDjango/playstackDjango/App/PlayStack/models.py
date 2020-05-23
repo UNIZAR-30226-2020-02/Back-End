@@ -253,7 +253,7 @@ class Interlocutor(models.Model):
         return self.Nombre
 
     def getFoto(self, httphost):
-        return 'https://' + httphost + settings.MEDIA_URL + self.FotoDelPodcast.name
+        return 'https://' + httphost + settings.MEDIA_URL + self.Foto.name
 
 
 class AudioEscuchado(models.Model):
