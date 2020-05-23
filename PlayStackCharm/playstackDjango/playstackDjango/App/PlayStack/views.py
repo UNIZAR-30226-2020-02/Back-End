@@ -561,12 +561,12 @@ def GetLastSong(request):
         listOfGenders = []
         listOfAlbuns = []
         listOfImages = []
-        songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': ''}
+        songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': '', 'EsFavorita' : ''}
         data = {}
         # Por el momento siempre es la misma
         hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
         audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
-
+        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
         if audio is not None:
             song = Cancion.objects.get(AudioRegistrado=audio.Audio)
         else:
@@ -589,6 +589,7 @@ def GetLastSong(request):
         songData['Albumes'] = listOfAlbuns
         songData['ImagenesAlbums'] = listOfImages
         songData['Generos'] = listOfGenders
+        songData['EsFavorita'] = user in song.UsuariosComoFavorita
         data[song.AudioRegistrado.Titulo] = songData
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
