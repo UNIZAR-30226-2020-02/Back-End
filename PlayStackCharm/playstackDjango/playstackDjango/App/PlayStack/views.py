@@ -787,6 +787,8 @@ def SearchUserSocial(request):
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        except Usuario.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     else:
 
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -1897,11 +1899,14 @@ def GetPodcastByTema(request):
             podData['Idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
             interlocutores = []
             for i in Interlocutor.objects.filter(Podcasts=pod):
-                interlocutores.append(str(i))
+                interlocutor={}
+                interlocutor[str(i)]=i.getFoto(request.META['HTTP_HOST'])
+                interlocutores.append(interlocutor)
             podData['Interlocutores'] = interlocutores
             podData['Descripcion'] = pod.Descripcion
             data[pod.Nombre] = podData
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
@@ -1920,7 +1925,9 @@ def GetPodcastByInterlocutor(request):
             podData['Idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
             interlocutores = []
             for i in Interlocutor.objects.filter(Podcasts=pod):
-                interlocutores.append(str(i))
+                interlocutor={}
+                interlocutor[str(i)]=i.getFoto(request.META['HTTP_HOST'])
+                interlocutores.append(interlocutor)
             podData['Interlocutores'] = interlocutores
             podData['Descripcion'] = pod.Descripcion
             data[pod.Nombre] = podData
@@ -1941,15 +1948,17 @@ def GetSubscribedPodcast(request):
             data = {}
 
             for pod in allPodcasts:
-                podData={}
-                podData['Foto']=pod.getFotoDelPodcast(request.META['HTTP_HOST'])
+                podData = {}
+                podData['Foto'] = pod.getFotoDelPodcast(request.META['HTTP_HOST'])
                 podData['Idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
                 interlocutores = []
                 for i in Interlocutor.objects.filter(Podcasts=pod):
-                    interlocutores.append(str(i))
+                    interlocutor = {}
+                    interlocutor[str(i)] = i.getFoto(request.META['HTTP_HOST'])
+                    interlocutores.append(interlocutor)
                 podData['Interlocutores'] = interlocutores
                 podData['Descripcion'] = pod.Descripcion
-                data[pod.Nombre]=podData
+                data[pod.Nombre] = podData
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -1992,6 +2001,22 @@ def GetPodcastCaps(request):
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Podcast.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+    else:
+        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(['GET'])
+def GetAllTematics(request):
+
+    if request.method == "GET":
+
+        allTematics = Tematica.objects.all()
+        data = {}
+
+        for tema in allTematics:
+            data[tema.Nombre] = 'Algo'
+
+        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 

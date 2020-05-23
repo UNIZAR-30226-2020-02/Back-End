@@ -247,9 +247,13 @@ class Podcast(models.Model):
 class Interlocutor(models.Model):
     Nombre = models.CharField(max_length=50, null=False)
     Podcasts = models.ManyToManyField(Podcast, blank=True, related_name='Participan')
+    Foto = models.ImageField(null=True, blank=True, upload_to='images')
 
     def __str__(self):
         return self.Nombre
+
+    def getFoto(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.FotoDelPodcast.name
 
 
 class AudioEscuchado(models.Model):
