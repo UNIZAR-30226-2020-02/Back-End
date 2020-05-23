@@ -508,11 +508,11 @@ def AddRequest(request):
     if request.method == "POST":
 
         try:
-
-            hashfollower = encrypt(str.encode(request.data['NuevoSeguidor'])).hex()
-            hashususer = encrypt(str.encode(request.data['Usuario'])).hex()
-            seguidor = Usuario.objects.get(NombreUsuario=hashfollower)
-            Usuario.objects.get(NombreUsuario=hashususer).SolicitudAmistad.add(seguidor)
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            hashnamefollower = encrypt(str.encode(request.data['Seguido'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            followed = Usuario.objects.get(Q(NombreUsuario=hashnamefollower) | Q(Correo=hashnamefollower))
+            user.addRequest(followed)
             return Response(status=status.HTTP_200_OK)
 
         except Usuario.DoesNotExist:
@@ -2114,6 +2114,11 @@ def GetMostListenedSongs(request):
                     #listOfAudios[index]['Titulo'] = listOfAudios[index]
                     listOfAudios[index]['EsFavorita'] = user in song.UsuariosComoFavorita.all()
                     data[song.AudioRegistrado.Titulo]=(listOfAudios[index])
+                    listOfArtists = []
+                    listOfGenders = []
+                    listOfAlbuns = []
+                    listOfImages = []
+                    listOfAudios = []
 
                 index = index + 1
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
