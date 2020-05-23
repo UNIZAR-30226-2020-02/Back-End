@@ -403,7 +403,8 @@ def GetAllSongs(request):
         listOfSongs = []
         data = {}
         songs = Cancion.objects.all()
-
+        hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
         for index in range(songs.count()):
 
             artistsOfSong = songs[index].Artistas.all()
@@ -417,12 +418,13 @@ def GetAllSongs(request):
             gendersOfSong = songs[index].Generos.all()
             for index4 in range(gendersOfSong.count()):
                 listOfGenders += [gendersOfSong[index4].Nombre]
-            listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'Generos'})]
+            listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'Generos','EsFavorita'})]
             listOfSongs[index]['Artistas'] = listOfArtists
             listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
             listOfSongs[index]['Albumes'] = listOfAlbuns
             listOfSongs[index]['ImagenesAlbums'] = listOfImages
             listOfSongs[index]['Generos'] = listOfGenders
+            listOfSongs[index]['EsFavorita'] = user in songs[index].UsuariosComoFavorita
             data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
             listOfArtists = []
             listOfGenders = []
@@ -1366,6 +1368,7 @@ def GetLastSongs(request):
             # Por el momento siempre es la misma
             hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
             audios = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse()[:20]
+            user = Usuario.objects.filter(NombreUsuario=hashname)
             for audio in audios:
 
                 if Cancion.objects.filter(AudioRegistrado=audio.Audio).exists():
@@ -1384,7 +1387,7 @@ def GetLastSongs(request):
                         listOfGenders += [gendersOfSong[index4].Nombre]
 
                     listOfAudios += [
-                        dict.fromkeys({'Tipo', 'Titulo', 'Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'Generos'})]
+                        dict.fromkeys({'Tipo', 'Titulo', 'Artistas', 'url', 'Albumes', 'ImagenesAlbums', 'Generos','EsFavorita'})]
                     listOfAudios[index]['Tipo'] = 'Cancion'
                     listOfAudios[index]['Artistas'] = listOfArtists
                     listOfAudios[index]['url'] = song.getURL(request.META['HTTP_HOST'])
@@ -1392,6 +1395,7 @@ def GetLastSongs(request):
                     listOfAudios[index]['ImagenesAlbums'] = listOfImages
                     listOfAudios[index]['Generos'] = listOfGenders
                     listOfAudios[index]['Titulo'] = song.AudioRegistrado.Titulo
+                    listOfAudios[index]['EsFavorita'] = user in song.UsuariosComoFavorita
                     data[index] = listOfAudios[index]
                     listOfArtists = []
                     listOfGenders = []
@@ -1619,7 +1623,6 @@ def Search(request):
             data['PlayLists'] = playlists
 
             for index in range(allPodcasts.count()):
-
 
                 podcasts[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(
                                                                             request.META['HTTP_HOST'])
@@ -2083,10 +2086,10 @@ def CreateAlbum(request):
                     return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
                 else:
                     inform['inform'] = 'Campos invalidos'
-
+                    return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
             else:
                 inform['inform'] = 'El usuario no tiene permisos'
-            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(inform, safe=False, status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
             inform['inform'] = 'El usuario no existe'
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)

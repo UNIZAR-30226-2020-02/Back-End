@@ -30,7 +30,7 @@ urlpatterns = [
     url('admin/', admin.site.urls),
     # Ruta dentro del servidor para acceder al recurso UsuarioResource
     url('usuarios/', include(user_resource.urls)),
-    url('search/', views.Search, name='Search'),
+    url('search/', views.Search, name='Search'), # *
     url('create/folder', views.CreateFolder, name='CreateFolder'),  # *
     url('create/album', views.CreateAlbum, name='CreateAlbum'),
     url('create/podcastchapter', views.CreateCapituloPodcast, name='CreateCapituloPodcast'),
@@ -43,7 +43,7 @@ urlpatterns = [
     url('song/update', views.SongUpdate, name='SongUpdate'),
     url('chapter/update', views.ChapterUpdate, name='ChapterUpdate'),
     url('get/allusers', views.GetAllUser, name='GetAllUser'), # *
-    url('get/allsongs', views.GetAllSongs, name='GetAllSongs'), # *
+    url('get/allsongs', views.GetAllSongs, name='GetAllSongs'), # ^
     url('get/allartists', views.GetAllArtists, name='GetAllArtists'),  # *
     url('get/allgenders', views.GetAllGenders, name='GetAllGenders'),
     url('get/allpodcasts', views.GetAllPodcasts, name='GetAllPodcasts'),
