@@ -1542,101 +1542,94 @@ def Search(request):
             podcasts = {}
 
             element = 0
-            allArtists = Artista.objects.all()[:5]
-            allSongs = Cancion.objects.all()[:5]
-            allPlayLists = PlayList.objects.all()[:5]
-            allPodcasts = Podcast.objects.all()[:5]
-            allAlbumes = Album.objects.all()[:5]
+            allArtists = Artista.objects.filter(Nombre__contains=request.query_params['KeyWord'])[:5]
+            allSongs = Cancion.objects.filter(AudioRegistrado__Titulo__contains=request.query_params['KeyWord'])[:5]
+            allPlayLists = PlayList.objects.filter(Nombre__contains=request.query_params['KeyWord'])[:5]
+            allPodcasts = Podcast.objects.filter(Nombre__contains=request.query_params['KeyWord'])[:5]
+            allAlbumes = Album.objects.filter(NombreAlbum__contains=request.query_params['KeyWord'])[:5]
 
-            keyWord = re.compile(request.query_params['KeyWord'], re.IGNORECASE)
             hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             for index in range(allArtists.count()):
 
-                if re.search(keyWord, allArtists[index].Nombre):
-                    listOfUsers += [dict.fromkeys({'Nombre', 'Foto'})]
-                    listOfUsers[element]['Nombre'] = allArtists[index].Nombre
-                    listOfUsers[element]['Foto'] = allArtists[index].getFoto(request.META['HTTP_HOST'])
-                    element += 1
+                listOfUsers += [dict.fromkeys({'Nombre', 'Foto'})]
+                listOfUsers[element]['Nombre'] = allArtists[index].Nombre
+                listOfUsers[element]['Foto'] = allArtists[index].getFoto(request.META['HTTP_HOST'])
+                element += 1
             element = 0
             data['Artistas'] = listOfUsers
 
             for index in range(allSongs.count()):
 
-                if re.search(keyWord, allSongs[index].AudioRegistrado.Titulo):
-                    artistsOfSong = allSongs[index].Artistas.all()
-                    for index2 in range(artistsOfSong.count()):
-                        listaOfArtists += [artistsOfSong[index2].Nombre]
+                artistsOfSong = allSongs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listaOfArtists += [artistsOfSong[index2].Nombre]
 
-                    albunsOfSong = allSongs[index].Albunes.all()
-                    for index3 in range(albunsOfSong.count()):
-                        listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
-                        listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
-                    genreOfSong = Genero.objects.filter(Canciones=allSongs[index])
-                    for index4 in genreOfSong:
-                        listOfGeneros.append(index4.Nombre)
+                albunsOfSong = allSongs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+                genreOfSong = Genero.objects.filter(Canciones=allSongs[index])
+                for index4 in genreOfSong:
+                    listOfGeneros.append(index4.Nombre)
 
-                    listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'EsFavorita'})]
-                    listOfSongs[element]['Artistas'] = listaOfArtists
-                    listOfSongs[element]['url'] = allSongs[index].getURL(request.META['HTTP_HOST'])
-                    listOfSongs[element]['Albumes'] = listOfAlbuns
-                    listOfSongs[element]['Generos'] = listOfGeneros
-                    listOfSongs[element]['ImagenesAlbum'] = listOfImages
-                    listOfSongs[element]['EsFavorita'] = user in allSongs[index].UsuariosComoFavorita.all()
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'EsFavorita'})]
+                listOfSongs[element]['Artistas'] = listaOfArtists
+                listOfSongs[element]['url'] = allSongs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[element]['Albumes'] = listOfAlbuns
+                listOfSongs[element]['Generos'] = listOfGeneros
+                listOfSongs[element]['ImagenesAlbum'] = listOfImages
+                listOfSongs[element]['EsFavorita'] = user in allSongs[index].UsuariosComoFavorita.all()
 
-                    songs[allSongs[index].AudioRegistrado.Titulo] = listOfSongs[element]
-                    listaOfArtists = []
-                    listOfAlbuns = []
-                    listOfImages = []
-                    listOfGeneros = []
-                    element += 1
+                songs[allSongs[index].AudioRegistrado.Titulo] = listOfSongs[element]
+                listaOfArtists = []
+                listOfAlbuns = []
+                listOfImages = []
+                listOfGeneros = []
+                element += 1
 
             data['Canciones'] = songs
 
             for index in range(allAlbumes.count()):
 
-                if re.match(keyWord, allAlbumes[index].NombreAlbum):
-                    albumes[allAlbumes[index].NombreAlbum] = allAlbumes[index].getFotoDelAlbum(
+               albumes[allAlbumes[index].NombreAlbum] = allAlbumes[index].getFotoDelAlbum(
                                                                                 request.META['HTTP_HOST'])
 
             data['Albumes'] = albumes
 
             for index in range(allPlayLists.count()):
-                if (not allPlayLists[index].Privado) and (re.search(keyWord, allPlayLists[index].Nombre)):
-                    playlist = {'Fotos': []}
-                    nombre = allPlayLists[index].Nombre
 
-                    fotos = []
-                    i = 0
+                playlist = {'Fotos': []}
+                nombre = allPlayLists[index].Nombre
 
-                    for c in allPlayLists[index].Canciones.order_by('id')[:4]:
-                        album = album = (Album.objects.filter(Canciones=c)).first()
-                        fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
-                        i = i + 1
-                    if i > 0:
-                        playlist['Fotos'] = fotos
-                    else:
-                        playlist['Fotos'] = ''
+                fotos = []
+                i = 0
 
-                    playlists[nombre] = playlist
+                for c in allPlayLists[index].Canciones.order_by('id')[:4]:
+                    album = album = (Album.objects.filter(Canciones=c)).first()
+                    fotos.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
+                    i = i + 1
+                if i > 0:
+                    playlist['Fotos'] = fotos
+                else:
+                    playlist['Fotos'] = ''
+
+                playlists[nombre] = playlist
 
             data['PlayLists'] = playlists
 
             for index in range(allPodcasts.count()):
 
-                if re.search(keyWord, allPodcasts[index].Nombre):
-                    podcasts[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(
-                                                                                request.META['HTTP_HOST'])
+
+                podcasts[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(
+                                                                            request.META['HTTP_HOST'])
             data['Podcasts'] = podcasts
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
-        except KeyError:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
-
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
