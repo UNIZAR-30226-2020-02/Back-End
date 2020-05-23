@@ -145,9 +145,6 @@ class Cancion(models.Model):
 
     def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
-    def getURLUnlock(self, httphost,session):
-        unlock_for_session(self.AudioRegistrado.FicheroDeAudio, session)
-        return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
 
 class Artista(models.Model):

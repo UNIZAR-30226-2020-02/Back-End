@@ -590,7 +590,7 @@ def GetLastSong(request):
             listOfGenders += [gendersOfSong[index4].Nombre]
 
         songData['Artistas'] = listOfArtists
-        songData['url'] = song.getURLUnlock(request.META['HTTP_HOST'], request.session)
+        songData['url'] = song.getURL(request.META['HTTP_HOST'])
         songData['Albumes'] = listOfAlbuns
         songData['ImagenesAlbums'] = listOfImages
         songData['Generos'] = listOfGenders
