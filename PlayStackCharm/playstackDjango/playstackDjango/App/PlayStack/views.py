@@ -2114,11 +2114,6 @@ def GetMostListenedSongs(request):
                     #listOfAudios[index]['Titulo'] = listOfAudios[index]
                     listOfAudios[index]['EsFavorita'] = user in song.UsuariosComoFavorita.all()
                     data[song.AudioRegistrado.Titulo]=(listOfAudios[index])
-                    listOfArtists = []
-                    listOfGenders = []
-                    listOfAlbuns = []
-                    listOfImages = []
-                    listOfAudios = []
 
                 index = index + 1
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
