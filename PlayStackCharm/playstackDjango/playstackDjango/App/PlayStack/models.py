@@ -4,6 +4,9 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.conf import settings
 from .functions import *
 import binascii
+from django.http import HttpResponseForbidden
+from lock_tokens.exceptions import AlreadyLockedError, UnlockForbiddenError
+from lock_tokens.sessions import check_for_session, lock_for_session, unlock_for_session
 
 # Create your models here.
 
@@ -141,6 +144,9 @@ class Cancion(models.Model):
         return formato.format(self.AudioRegistrado.Titulo, self.AudioRegistrado.CreadorDeContenido)
 
     def getURL(self, httphost):
+        return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
+    def getURLUnlock(self, httphost,session):
+        unlock_for_session(self.AudioRegistrado.FicheroDeAudio, session)
         return 'https://' + httphost + settings.MEDIA_URL + self.AudioRegistrado.FicheroDeAudio.name
 
 

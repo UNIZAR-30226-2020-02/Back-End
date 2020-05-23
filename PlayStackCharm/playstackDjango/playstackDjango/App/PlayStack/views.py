@@ -17,7 +17,9 @@ from .functions import *
 from django.db.models import Count
 import datetime
 import json
-
+from django.http import HttpResponseForbidden
+from lock_tokens.exceptions import AlreadyLockedError, UnlockForbiddenError
+from lock_tokens.sessions import check_for_session, lock_for_session, unlock_for_session
 # Permite la creacion de usuarios especificando su tipo
 # pasando los campos del cuerpo al serializer
 @api_view(['POST'])
@@ -588,7 +590,7 @@ def GetLastSong(request):
             listOfGenders += [gendersOfSong[index4].Nombre]
 
         songData['Artistas'] = listOfArtists
-        songData['url'] = song.getURL(request.META['HTTP_HOST'])
+        songData['url'] = song.getURLUnlock(request.META['HTTP_HOST'], request.session)
         songData['Albumes'] = listOfAlbuns
         songData['ImagenesAlbums'] = listOfImages
         songData['Generos'] = listOfGenders
@@ -1412,7 +1414,7 @@ def GetLastSongs(request):
 
                     chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
                     podcast = chapter.Capitulos.all()[0]
-                    listOfAudios[index] += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
+                    listOfAudios += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
                     listOfAudios[index]['Tipo'] = 'Podcast'
                     listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
                     listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
