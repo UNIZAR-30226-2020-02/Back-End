@@ -130,6 +130,7 @@ class Audio(models.Model):
     def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.FicheroDeAudio.name
 
+# Cancion.objects.all().values('AudioRegistrado')
 
 class Cancion(models.Model):
     AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)

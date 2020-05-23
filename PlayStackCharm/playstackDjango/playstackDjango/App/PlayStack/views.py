@@ -556,7 +556,7 @@ def GetProfilePhoto(request):
 @api_view(['GET'])
 def GetLastSong(request):
     if request.method == "GET":
-
+        songs=[]
         listOfArtists = []
         listOfGenders = []
         listOfAlbuns = []
@@ -565,7 +565,10 @@ def GetLastSong(request):
         data = {}
         # Por el momento siempre es la misma
         hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
-        audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
+        for audio in Audio.objects.all():
+            if Cancion.objects.filter(AudioRegistrado=audio):
+                songs.append(audio)
+        audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname, Audio__in=songs).order_by('TimeStamp').reverse().first()
         user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
         if audio is not None:
             song = Cancion.objects.get(AudioRegistrado=audio.Audio)
@@ -1413,7 +1416,7 @@ def GetLastSongs(request):
                     listOfAudios[index]['Tipo'] = 'Podcast'
                     listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
                     listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
-                    listOfAudios[index]['Titulo'] = listOfAudios[index]
+                    listOfAudios[index]['Titulo'] = podcast.Nombre
                     data[index] = listOfAudios[index]
 
                 index = index + 1
@@ -2073,14 +2076,15 @@ def GetMostListenedSongs(request):
 
                     chapter = Capitulo.objects.get(AudioRegistrado__Titulo=audio['Audio__Titulo'])
                     podcast = chapter.Capitulos.all()[0]
-                    listOfAudios[index] += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
+                    listOfAudios += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
                     listOfAudios[index]['Tipo'] = 'Podcast'
                     listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
                     listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
-                    listOfAudios[index]['Titulo'] = listOfAudios[index]
+                    listOfAudios[index]['Titulo'] = podcast.Nombre
                     data[index] = listOfAudios[index]
 
-                index = index + 1
+                index += 1
+            print (data)
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
