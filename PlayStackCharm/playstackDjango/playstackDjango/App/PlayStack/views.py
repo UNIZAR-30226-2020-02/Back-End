@@ -403,7 +403,7 @@ def GetAllSongs(request):
         listOfSongs = []
         data = {}
         songs = Cancion.objects.all()
-        hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+        hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
         user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
         for index in range(songs.count()):
 
