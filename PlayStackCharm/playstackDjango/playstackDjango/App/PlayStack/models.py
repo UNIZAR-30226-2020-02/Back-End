@@ -4,6 +4,9 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.conf import settings
 from .functions import *
 import binascii
+from django.http import HttpResponseForbidden
+from lock_tokens.exceptions import AlreadyLockedError, UnlockForbiddenError
+from lock_tokens.sessions import check_for_session, lock_for_session, unlock_for_session
 
 # Create your models here.
 
@@ -130,6 +133,7 @@ class Audio(models.Model):
     def getURL(self, httphost):
         return 'https://' + httphost + settings.MEDIA_URL + self.FicheroDeAudio.name
 
+# Cancion.objects.all().values('AudioRegistrado')
 
 class Cancion(models.Model):
     AudioRegistrado = models.OneToOneField(Audio, null=False, blank=False, on_delete=models.CASCADE)

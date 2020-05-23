@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'playstackDjango.App.PlayStack',
+    'lock_tokens.apps.LockTokensConfig',
     # Para uso de ssl para aplicaciones en local host
     'djangosecure',
     'sslserver'
@@ -50,7 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
 ]
 
 # Para uso de ssl para aplicaciones en local host
