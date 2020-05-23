@@ -424,7 +424,7 @@ def GetAllSongs(request):
             listOfSongs[index]['Albumes'] = listOfAlbuns
             listOfSongs[index]['ImagenesAlbums'] = listOfImages
             listOfSongs[index]['Generos'] = listOfGenders
-            listOfSongs[index]['EsFavorita'] = user in songs[index].UsuariosComoFavorita
+            listOfSongs[index]['EsFavorita'] = user in songs[index].UsuariosComoFavorita.all()
             data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
             listOfArtists = []
             listOfGenders = []
@@ -589,7 +589,7 @@ def GetLastSong(request):
         songData['Albumes'] = listOfAlbuns
         songData['ImagenesAlbums'] = listOfImages
         songData['Generos'] = listOfGenders
-        songData['EsFavorita'] = user in song.UsuariosComoFavorita
+        songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
         data[song.AudioRegistrado.Titulo] = songData
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
@@ -2186,7 +2186,7 @@ def CreateCapituloPodcast(request):
                     Podcast.objects.filter(Nombre=request.data['NombrePodcast']).all()[0].Capitulos.add(Capitulo.objects.get(AudioRegistrado=audio))
                     for interlocutor in request.data['Interlocutores']:
                         Interlocutor.objects.get(Nombre=interlocutor).Podcasts.add(Podcast.objects.get(Nombre=request.data['NombrePodcast']))
-                    inform['inform'] = 'Cancion creada correctamente'
+                    inform['inform'] = 'Capitulo creado correctamente'
                     return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
                 else:
 
