@@ -1396,7 +1396,7 @@ def GetLastSongs(request):
                     listOfAudios[index]['ImagenesAlbums'] = listOfImages
                     listOfAudios[index]['Generos'] = listOfGenders
                     listOfAudios[index]['Titulo'] = song.AudioRegistrado.Titulo
-                    listOfAudios[index]['EsFavorita'] = user in song.UsuariosComoFavorita
+                    listOfAudios[index]['EsFavorita'] = user in song.UsuariosComoFavorita.all()
                     data[index] = listOfAudios[index]
                     listOfArtists = []
                     listOfGenders = []
@@ -2142,10 +2142,10 @@ def CreateSong(request):
                 else:
 
                     inform['inform'] = 'Campos invalidos'
-
+                    return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
             else:
                 inform['inform'] = 'El usuario no tiene permisos'
-            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(inform, safe=False, status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
             inform['inform'] = 'El usuario no existe'
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
@@ -2191,10 +2191,10 @@ def CreateCapituloPodcast(request):
                 else:
 
                     inform['inform'] = 'Campos invalidos'
-
+                    return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
             else:
                 inform['inform'] = 'El usuario no tiene permisos'
-            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(inform, safe=False, status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
             inform['inform'] = 'El usuario no existe'
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
@@ -2212,8 +2212,6 @@ def CreatePodcast(request):
         try:
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             request.data['Tema'] = Tematica.objects.get(Nombre=request.data['Tema'])
-
-
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
                 del request.data['NombreUsuario']
                 form = PodcastForm(request.data,request.FILES)
@@ -2224,10 +2222,10 @@ def CreatePodcast(request):
                     return JsonResponse(inform, safe=False, status=status.HTTP_200_OK)
                 else:
                     inform['inform'] = 'Campos invalidos'
-
+                    return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
             else:
                 inform['inform'] = 'El usuario no tiene permisos'
-            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(inform, safe=False, status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
             inform['inform'] = 'El usuario no existe'
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
