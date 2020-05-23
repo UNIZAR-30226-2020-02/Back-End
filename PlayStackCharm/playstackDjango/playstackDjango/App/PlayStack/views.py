@@ -1887,9 +1887,16 @@ def GetPodcastByTema(request):
         allPodcasts = Podcast.objects.filter(Tematica=tema)
         data = {}
 
-        for index in range(allPodcasts.count()):
-            data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
-
+        for pod in allPodcasts:
+            podData = {}
+            podData['Foto'] = pod.getFotoDelPodcast(request.META['HTTP_HOST'])
+            podData['Idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
+            interlocutores = []
+            for i in Interlocutor.objects.filter(Podcasts=pod):
+                interlocutores.append(str(i))
+            podData['Interlocutores'] = interlocutores
+            podData['Descripcion'] = pod.Descripcion
+            data[pod.Nombre] = podData
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -1903,8 +1910,17 @@ def GetPodcastByInterlocutor(request):
         allPodcasts = podcaster.Podcasts.all()
         data = {}
 
-        for index in range(allPodcasts.count()):
-            data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
+        for pod in allPodcasts:
+            podData = {}
+            podData['Foto'] = pod.getFotoDelPodcast(request.META['HTTP_HOST'])
+            podData['Idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
+            interlocutores = []
+            for i in Interlocutor.objects.filter(Podcasts=pod):
+                interlocutores.append(str(i))
+            podData['Interlocutores'] = interlocutores
+            podData['Descripcion'] = pod.Descripcion
+            data[pod.Nombre] = podData
+        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
@@ -1920,9 +1936,16 @@ def GetSubscribedPodcast(request):
             allPodcasts = Podcast.objects.filter(Subscriptores=user)
             data = {}
 
-            for index in range(allPodcasts.count()):
-                data[allPodcasts[index].Nombre] = allPodcasts[index].getFotoDelPodcast(request.META['HTTP_HOST'])
-
+            for pod in allPodcasts:
+                podData={}
+                podData['Foto']=pod.getFotoDelPodcast(request.META['HTTP_HOST'])
+                podData['Idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
+                interlocutores = []
+                for i in Interlocutor.objects.filter(Podcasts=pod):
+                    interlocutores.append(str(i))
+                podData['Interlocutores'] = interlocutores
+                podData['Descripcion'] = pod.Descripcion
+                data[pod.Nombre]=podData
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -1944,11 +1967,17 @@ def GetPodcastCaps(request):
             pod = Podcast.objects.get(Nombre=request.query_params['NombrePodcast'])
             data['Foto']= pod.getFotoDelPodcast(request.META['HTTP_HOST'])
             data['Tema']= str(pod.Tematica)
+            data['idioma'] = (pod.Capitulos.all())[1].AudioRegistrado.Idioma
+            interlocutores=[]
+            for i in Interlocutor.objects.filter(Podcasts=pod):
+                interlocutores.append(str(i))
+            data['Interlocutores'] = interlocutores
+            data['Descripcion'] = pod.Descripcion
             capitulos=[]
             i=1
             for cap in pod.Capitulos.all().order_by('Fecha'):
                 capitulo={}
-                capitulo['numCap'] = i
+                capitulo['numChapter'] = i
                 capitulo['nombre']=str(cap.AudioRegistrado)
                 capitulo['fecha'] = str(cap.Fecha)
                 capitulo['url'] = cap.AudioRegistrado.getURL(request.META['HTTP_HOST'])
