@@ -17,9 +17,7 @@ from .functions import *
 from django.db.models import Count
 import datetime
 import json
-from django.http import HttpResponseForbidden
-from lock_tokens.exceptions import AlreadyLockedError, UnlockForbiddenError
-from lock_tokens.sessions import check_for_session, lock_for_session, unlock_for_session
+
 # Permite la creacion de usuarios especificando su tipo
 # pasando los campos del cuerpo al serializer
 @api_view(['POST'])
@@ -564,39 +562,70 @@ def GetLastSong(request):
         listOfAlbuns = []
         listOfImages = []
         songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': '', 'EsFavorita' : ''}
+        chapterData = {'url':'', 'Titulo':'', 'Imagen':'', 'Interlocutor':''}
         data = {}
         # Por el momento siempre es la misma
         hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
-        for audio in Audio.objects.all():
-            if Cancion.objects.filter(AudioRegistrado=audio):
-                songs.append(audio)
-        audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname, Audio__in=songs).order_by('TimeStamp').reverse().first()
+
+        audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
+        print(audio.Audio.Titulo)
         user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
         if audio is not None:
-            song = Cancion.objects.get(AudioRegistrado=audio.Audio)
+
+            if Cancion.objects.filter(AudioRegistrado=audio.Audio).count() > 0:
+                song = Cancion.objects.get(AudioRegistrado=audio.Audio)
+                artistsOfSong = song.Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listOfArtists += [artistsOfSong[index2].Nombre]
+                albunsOfSong = song.Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+                gendersOfSong = song.Generos.all()
+                for index4 in range(gendersOfSong.count()):
+                    listOfGenders += [gendersOfSong[index4].Nombre]
+
+                songData['Artistas'] = listOfArtists
+                songData['url'] = song.getURL(request.META['HTTP_HOST'])
+                songData['Albumes'] = listOfAlbuns
+                songData['ImagenesAlbums'] = listOfImages
+                songData['Generos'] = listOfGenders
+                songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
+                data[song.AudioRegistrado.Titulo] = songData
+                print('retorno')
+                return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+            else:
+                print('llego')
+                chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
+                podcast = chapter.Capitulos.all()[0]
+                chapterData['url'] = chapter.getURL(request.META['HTTP_HOST'])
+                chapterData['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
+                chapterData['Interlocutor'] = podcast.Participan.all()[0].Nombre
+                data[podcast.Nombre] = chapterData
+                return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         else:
             song = Cancion.objects.all()[0]
+            artistsOfSong = song.Artistas.all()
+            for index2 in range(artistsOfSong.count()):
+                listOfArtists += [artistsOfSong[index2].Nombre]
+            albunsOfSong = song.Albunes.all()
+            for index3 in range(albunsOfSong.count()):
+                listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
 
-        artistsOfSong = song.Artistas.all()
-        for index2 in range(artistsOfSong.count()):
-            listOfArtists += [artistsOfSong[index2].Nombre]
-        albunsOfSong = song.Albunes.all()
-        for index3 in range(albunsOfSong.count()):
-            listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
-            listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+            gendersOfSong = song.Generos.all()
+            for index4 in range(gendersOfSong.count()):
+                listOfGenders += [gendersOfSong[index4].Nombre]
 
-        gendersOfSong = song.Generos.all()
-        for index4 in range(gendersOfSong.count()):
-            listOfGenders += [gendersOfSong[index4].Nombre]
-
-        songData['Artistas'] = listOfArtists
-        songData['url'] = song.getURL(request.META['HTTP_HOST'])
-        songData['Albumes'] = listOfAlbuns
-        songData['ImagenesAlbums'] = listOfImages
-        songData['Generos'] = listOfGenders
-        songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
-        data[song.AudioRegistrado.Titulo] = songData
-        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+            songData['Artistas'] = listOfArtists
+            songData['url'] = song.getURL(request.META['HTTP_HOST'])
+            songData['Albumes'] = listOfAlbuns
+            songData['ImagenesAlbums'] = listOfImages
+            songData['Generos'] = listOfGenders
+            songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
+            data[song.AudioRegistrado.Titulo] = songData
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
 
@@ -2025,7 +2054,7 @@ def GetAllTematics(request):
     else:
         return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
-
+@api_view(['GET'])
 def GetMostListenedSongs(request):
 
     if request.method == "GET":
@@ -2078,7 +2107,7 @@ def GetMostListenedSongs(request):
 
                     chapter = Capitulo.objects.get(AudioRegistrado__Titulo=audio['Audio__Titulo'])
                     podcast = chapter.Capitulos.all()[0]
-                    listOfAudios[index] += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
+                    listOfAudios += [dict.fromkeys({'Tipo', 'Titulo', 'Imagen', 'Interlocutor'})]
                     listOfAudios[index]['Tipo'] = 'Podcast'
                     listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
                     listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
