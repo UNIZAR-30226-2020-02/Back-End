@@ -1411,7 +1411,7 @@ def GetLastSongs(request):
             index = 0
             # Por el momento siempre es la misma
             hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
-            audios = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse()[:20]
+            audios = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).distinct('Audio','TimeStamp').order_by('TimeStamp').reverse()[:20]
             user = Usuario.objects.filter(NombreUsuario=hashname)
             for audio in audios:
 
