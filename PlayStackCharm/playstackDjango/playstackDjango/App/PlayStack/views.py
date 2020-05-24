@@ -555,25 +555,56 @@ def GetProfilePhoto(request):
 # por el usuario
 @api_view(['GET'])
 def GetLastSong(request):
-    if request.method == "GET":
-        songs=[]
-        listOfArtists = []
-        listOfGenders = []
-        listOfAlbuns = []
-        listOfImages = []
-        songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': '', 'EsFavorita' : ''}
-        chapterData = {'url':'', 'Titulo':'', 'Imagen':'', 'Interlocutor':''}
-        data = {}
-        # Por el momento siempre es la misma
-        hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
+    try:
+        if request.method == "GET":
+            songs=[]
+            listOfArtists = []
+            listOfGenders = []
+            listOfAlbuns = []
+            listOfImages = []
+            songData = {'Artistas': '', 'url': '', 'Albumes': '', 'ImagenesAlbums': '', 'Generos': '', 'EsFavorita' : ''}
+            chapterData = {'url':'', 'Titulo':'', 'Imagen':'', 'Interlocutor':''}
+            data = {}
+            # Por el momento siempre es la misma
+            hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
 
-        audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
-        print(audio.Audio.Titulo)
-        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-        if audio is not None:
+            audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            if audio is not None:
 
-            if Cancion.objects.filter(AudioRegistrado=audio.Audio).count() > 0:
-                song = Cancion.objects.get(AudioRegistrado=audio.Audio)
+                if Cancion.objects.filter(AudioRegistrado=audio.Audio).count() > 0:
+                    song = Cancion.objects.get(AudioRegistrado=audio.Audio)
+                    artistsOfSong = song.Artistas.all()
+                    for index2 in range(artistsOfSong.count()):
+                        listOfArtists += [artistsOfSong[index2].Nombre]
+                    albunsOfSong = song.Albunes.all()
+                    for index3 in range(albunsOfSong.count()):
+                        listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                        listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+                    gendersOfSong = song.Generos.all()
+                    for index4 in range(gendersOfSong.count()):
+                        listOfGenders += [gendersOfSong[index4].Nombre]
+
+                    songData['Artistas'] = listOfArtists
+                    songData['url'] = song.getURL(request.META['HTTP_HOST'])
+                    songData['Albumes'] = listOfAlbuns
+                    songData['ImagenesAlbums'] = listOfImages
+                    songData['Generos'] = listOfGenders
+                    songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
+                    data[song.AudioRegistrado.Titulo] = songData
+                    return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+                else:
+                    
+                    chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
+                    podcast = chapter.Capitulos.all()[0]
+                    chapterData['url'] = chapter.getURL(request.META['HTTP_HOST'])
+                    chapterData['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
+                    chapterData['Interlocutor'] = podcast.Participan.all()[0].Nombre
+                    data[podcast.Nombre] = chapterData
+                    return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+            else:
+                song = Cancion.objects.all()[0]
                 artistsOfSong = song.Artistas.all()
                 for index2 in range(artistsOfSong.count()):
                     listOfArtists += [artistsOfSong[index2].Nombre]
@@ -581,6 +612,7 @@ def GetLastSong(request):
                 for index3 in range(albunsOfSong.count()):
                     listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
                     listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+
                 gendersOfSong = song.Generos.all()
                 for index4 in range(gendersOfSong.count()):
                     listOfGenders += [gendersOfSong[index4].Nombre]
@@ -592,44 +624,15 @@ def GetLastSong(request):
                 songData['Generos'] = listOfGenders
                 songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
                 data[song.AudioRegistrado.Titulo] = songData
-                print('retorno')
-                return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
-
-            else:
-                print('llego')
-                chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
-                podcast = chapter.Capitulos.all()[0]
-                chapterData['url'] = chapter.getURL(request.META['HTTP_HOST'])
-                chapterData['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
-                chapterData['Interlocutor'] = podcast.Participan.all()[0].Nombre
-                data[podcast.Nombre] = chapterData
                 return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         else:
-            song = Cancion.objects.all()[0]
-            artistsOfSong = song.Artistas.all()
-            for index2 in range(artistsOfSong.count()):
-                listOfArtists += [artistsOfSong[index2].Nombre]
-            albunsOfSong = song.Albunes.all()
-            for index3 in range(albunsOfSong.count()):
-                listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
-                listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
 
-            gendersOfSong = song.Generos.all()
-            for index4 in range(gendersOfSong.count()):
-                listOfGenders += [gendersOfSong[index4].Nombre]
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+    except Usuario.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except KeyError:
 
-            songData['Artistas'] = listOfArtists
-            songData['url'] = song.getURL(request.META['HTTP_HOST'])
-            songData['Albumes'] = listOfAlbuns
-            songData['ImagenesAlbums'] = listOfImages
-            songData['Generos'] = listOfGenders
-            songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
-            data[song.AudioRegistrado.Titulo] = songData
-            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
-
-    else:
-
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # Devulve los seguidores
@@ -2413,7 +2416,7 @@ def RemoveAudio(request):
                 Audio.objects.get(Titulo=request.data['Titulo']).delete()
                 return Response(status=status.HTTP_200_OK)
             else:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -2438,7 +2441,7 @@ def SongUpdate(request):
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
                 audio = Audio.objects.get(Titulo=request.data['Titulo'])
-                audio.Titulo = request.data['Titulo']
+                audio.Titulo = request.data['NuevoTitulo']
                 audio.Duracion = float(request.data['Duracion'])
                 audio.FicheroDeAudio = request.data['FicheroDeAudio']
                 audio.Idioma = request.data['Idioma']
@@ -2446,7 +2449,7 @@ def SongUpdate(request):
 
                 return Response(status=status.HTTP_200_OK)
             else:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -2473,7 +2476,7 @@ def ChapterUpdate(request):
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
                 audio = Audio.objects.get(Titulo=request.data['Titulo'])
                 capitulo = Capitulo.objects.get(AudioRegistrado=audio)
-                audio.Titulo = request.data['Titulo']
+                audio.Titulo = request.data['NuevoTitulo']
                 audio.Duracion = float(request.data['Duracion'])
                 audio.FicheroDeAudio = request.data['FicheroDeAudio']
                 audio.Idioma = request.data['Idioma']
@@ -2483,7 +2486,7 @@ def ChapterUpdate(request):
 
                 return Response(status=status.HTTP_200_OK)
             else:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
         except Usuario.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
