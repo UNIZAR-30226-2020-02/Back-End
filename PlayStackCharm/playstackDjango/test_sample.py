@@ -1,6 +1,6 @@
 import requests
 import json
-
+'''
 def test_CreateUser_clases_validas():
     url = 'https://playstack.azurewebsites.net/create/user'
     headers = {'content-type': 'application/json'}
@@ -280,3 +280,188 @@ def test_RemoveAudio_clases_validas():
     datos['Titulo'] = 'Test'
     request = requests.post(url, json=datos)
     assert request.status_code == 400
+'''
+
+######################################################################################
+#################################### LOGIN TEST ######################################
+######################################################################################
+'''
+def test_Login_clases_validas():
+
+    url = 'https://playstack.azurewebsites.net/user/login'
+    datos = {'NombreUsuario': '', 'Contrasenya': ''}
+
+    datos['NombreUsuario'] = 'ErTisho'
+    datos['Contrasenya'] = 'cacahuete1'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 200
+
+def test_Login_clase_4():
+
+    url = 'https://playstack.azurewebsites.net/user/login'
+    datos = {'NombreUsuario': '', 'Contrasenya': ''}
+
+    datos['NombreUsuario'] = 'ErTishoTPM'
+    datos['Contrasenya'] = 'cacahuete1'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 404
+
+def test_Login_clase_5():
+    url = 'https://playstack.azurewebsites.net/user/login'
+    datos = {'Contrasenya': ''}
+    datos['Contrasenya'] = 'cacahuete1'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+def test_Login_clase_6():
+
+    url = 'https://playstack.azurewebsites.net/user/login'
+    datos = {'NombreUsuario': '', 'Contrasenya': ''}
+
+    datos['NombreUsuario'] = 'ErTisho'
+    datos['Contrasenya'] = 'cacahuete12325'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 401
+
+def test_Login_clase_7():
+
+    url = 'https://playstack.azurewebsites.net/user/login'
+    datos = {'NombreUsuario': ''}
+
+    datos['NombreUsuario'] = 'ErTisho'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+def test_Login_clase_8():
+
+    url = 'https://playstack.azurewebsites.net/user/login'
+    datos = {'NombreUsuario': '', 'Contrasenya': ''}
+
+    datos['NombreUsuario'] = 'ErTisho'
+    datos['Contrasenya'] = 'cacahuete12325'
+    request = requests.get(url, json=datos)
+    assert request.status_code == 405
+'''
+######################################################################################
+############################ FOLLOWREQUESTS TEST #####################################
+######################################################################################
+'''
+def test_followRequest_clases_validas():
+    url = 'https://playstack.azurewebsites.net/user/get/followrequests'
+
+    url=url + '?Usuario=ErTisho'
+    request = requests.get(url)
+    assert request.status_code == 200
+
+def test_followRequest_clase_3():
+
+    url = 'https://playstack.azurewebsites.net/user/get/followrequests'
+
+    url=url + '?Usuario=ErTishoTTTPM'
+    request = requests.get(url)
+    assert request.status_code == 404
+
+def test_followRequest_clase_4():
+
+    url = 'https://playstack.azurewebsites.net/user/get/followrequests'
+
+    #url=url + '?NombreUsuario=ErTishoTTTPM'
+    request = requests.get(url)
+    assert request.status_code == 400
+
+def test_followRequest_clase_5():
+
+    url = 'https://playstack.azurewebsites.net/user/get/followrequests'
+
+    url=url + '?Usuario=ErTisho'
+    request = requests.post(url)
+    assert request.status_code == 405
+'''
+
+######################################################################################
+############################ ADDSONGTOLISTENED TEST ##################################
+######################################################################################
+def test_AddSongToListened_clases_validas():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTisho'
+    datos['Titulo'] = 'So Payaso'
+    datos['Timestamp'] = '1999/10/26 00:00:00'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 200
+
+def test_AddSongToListened_clase_5():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTishoTPM'
+    datos['Titulo'] = 'So Payaso'
+    datos['Timestamp'] = '1999/10/26 00:00:00'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 404
+
+def test_AddSongToListened_clase_6():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+
+    datos['Titulo'] = 'So Payaso'
+    datos['Timestamp'] = '1999/10/26 00:00:00'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+def test_AddSongToListened_clase_7():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTisho'
+    datos['Titulo'] = 'So Payasete XD'
+    datos['Timestamp'] = '1999/10/26 00:00:00'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 404
+
+def test_AddSongToListened_clase_8():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTisho'
+    datos['Timestamp'] = '1999/10/26 00:00:00'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+def test_AddSongToListened_clase_9():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTisho'
+    datos['Titulo'] = 'So Payasete XD'
+    datos['Timestamp'] = 'MAS VINAGRE 1999/10/26 00:00:00 EN VINAGRE'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 404
+
+def test_AddSongToListened_clase_10():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTisho'
+    datos['Titulo'] = 'So Payasete XD'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+def test_AddSongToListened_clase_10():
+
+    url = 'https://playstack.azurewebsites.net/user/add/song/tolistened'
+    datos = {}
+
+    datos['Usuario'] = 'ErTisho'
+    datos['Titulo'] = 'So Payasete XD'
+    request = requests.get(url, json=datos)
+    assert request.status_code == 405
