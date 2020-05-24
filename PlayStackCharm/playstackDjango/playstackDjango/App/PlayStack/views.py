@@ -399,43 +399,51 @@ def GetAllUser(request):
 @api_view(['GET'])
 def GetAllSongs(request):
     if request.method == "GET":
-
-        listOfArtists = []
-        listOfGenders = []
-        listOfAlbuns = []
-        listOfImages = []
-        listOfSongs = []
-        data = {}
-        songs = Cancion.objects.all()
-        hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
-        user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
-        for index in range(songs.count()):
-
-            artistsOfSong = songs[index].Artistas.all()
-            for index2 in range(artistsOfSong.count()):
-                listOfArtists += [artistsOfSong[index2].Nombre]
-            albunsOfSong = songs[index].Albunes.all()
-            for index3 in range(albunsOfSong.count()):
-                listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
-                listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
-
-            gendersOfSong = songs[index].Generos.all()
-            for index4 in range(gendersOfSong.count()):
-                listOfGenders += [gendersOfSong[index4].Nombre]
-            listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'Generos','EsFavorita'})]
-            listOfSongs[index]['Artistas'] = listOfArtists
-            listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
-            listOfSongs[index]['Albumes'] = listOfAlbuns
-            listOfSongs[index]['ImagenesAlbums'] = listOfImages
-            listOfSongs[index]['Generos'] = listOfGenders
-            listOfSongs[index]['EsFavorita'] = user in songs[index].UsuariosComoFavorita.all()
-            data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+        try:
             listOfArtists = []
             listOfGenders = []
             listOfAlbuns = []
             listOfImages = []
+            listOfSongs = []
+            data = {}
+            songs = Cancion.objects.all()
+            hashname = encrypt(str.encode(request.query_params['NombreUsuario'])).hex()
+            user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
+            for index in range(songs.count()):
 
-        return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+                artistsOfSong = songs[index].Artistas.all()
+                for index2 in range(artistsOfSong.count()):
+                    listOfArtists += [artistsOfSong[index2].Nombre]
+                albunsOfSong = songs[index].Albunes.all()
+                for index3 in range(albunsOfSong.count()):
+                    listOfAlbuns += [albunsOfSong[index3].NombreAlbum]
+                    listOfImages += [albunsOfSong[index3].getFotoDelAlbum(request.META['HTTP_HOST'])]
+
+                gendersOfSong = songs[index].Generos.all()
+                for index4 in range(gendersOfSong.count()):
+                    listOfGenders += [gendersOfSong[index4].Nombre]
+                listOfSongs += [dict.fromkeys({'Artistas', 'url', 'Albumes', 'ImagenesAlbum', 'Generos','EsFavorita'})]
+                listOfSongs[index]['Artistas'] = listOfArtists
+                listOfSongs[index]['url'] = songs[index].getURL(request.META['HTTP_HOST'])
+                listOfSongs[index]['Albumes'] = listOfAlbuns
+                listOfSongs[index]['ImagenesAlbums'] = listOfImages
+                listOfSongs[index]['Generos'] = listOfGenders
+                listOfSongs[index]['EsFavorita'] = user in songs[index].UsuariosComoFavorita.all()
+                data[songs[index].AudioRegistrado.Titulo] = listOfSongs[index]
+                listOfArtists = []
+                listOfGenders = []
+                listOfAlbuns = []
+                listOfImages = []
+
+            return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
+
+        except KeyError:
+
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     else:
 
