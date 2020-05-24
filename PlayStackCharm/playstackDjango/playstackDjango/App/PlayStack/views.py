@@ -2129,8 +2129,7 @@ def GetMostListenedSongs(request):
                     listOfAudios[index]['Imagen'] = podcast.getFotoDelPodcast(request.META['HTTP_HOST'])
                     listOfAudios[index]['Interlocutor'] = podcast.Participan.all()[0].Nombre
                     #listOfAudios[index]['Titulo'] = listOfAudios[index]
-                    listOfAudios[index]['EsFavorita'] = user in song.UsuariosComoFavorita.all()
-                    data[song.AudioRegistrado.Titulo]=(listOfAudios[index])
+                    data[chapter.AudioRegistrado.Titulo]=(listOfAudios[index])
 
                 index = index + 1
             return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
