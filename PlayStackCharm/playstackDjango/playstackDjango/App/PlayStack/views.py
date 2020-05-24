@@ -1174,6 +1174,14 @@ def GetSongByArtist(request):
 
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+        except Usuario.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except Artista.DoesNotExist:
+
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         except KeyError:
 
             return Response(status=status.HTTP_400_BAD_REQUEST)

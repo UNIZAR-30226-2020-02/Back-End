@@ -149,3 +149,51 @@ def test_CreatePlayList_clase_9():
     datos['EsPrivado'] = True
     request = requests.get(url, json=datos)
     assert request.status_code == 405
+
+def test_GetAllSongs_clases_validas():
+    url = 'https://playstack.azurewebsites.net/get/allsongs?NombreUsuario=Freeman'
+    request = requests.get(url)
+    assert request.status_code == 200
+
+# No existe el usuario
+def test_GetAllSongs_clase_4():
+    url = 'https://playstack.azurewebsites.net/get/allsongs?NombreUsuario=usuario_tester'
+    request = requests.get(url)
+    assert request.status_code == 404
+
+# No existe el campo NombreUsuario
+def test_GetAllSongs_clase_5():
+    url = 'https://playstack.azurewebsites.net/get/allsongs'
+    request = requests.get(url)
+    assert request.status_code == 400
+
+# Se utiliza un metodo POST en lugar del GET
+def test_GetAllSongs_clase_6():
+    url = 'https://playstack.azurewebsites.net/get/allsongs?NombreUsuario=usuario_tester'
+    request = requests.post(url)
+    assert request.status_code == 405
+
+def test_GetSubscribedPodcast_clases_validas():
+    url = 'https://playstack.azurewebsites.net/get/podcast/followed?NombreUsuario=Freeman'
+    request = requests.get(url)
+    assert request.status_code == 200
+
+# Usuario no existe
+def test_GetSubscribedPodcast_clase_4():
+    url = 'https://playstack.azurewebsites.net/get/podcast/followed?NombreUsuario=usuario_test'
+    request = requests.get(url)
+    assert request.status_code == 404
+
+# No existe el campo NombreUsuario
+def test_GetSubscribedPodcast_clase_5():
+    url = 'https://playstack.azurewebsites.net/get/podcast/followed'
+    request = requests.get(url)
+    assert request.status_code == 400
+
+# Se utiliza un metodo POST en lugar del GET
+def test_GetSubscribedPodcast_clase_6():
+    url = 'https://playstack.azurewebsites.net/get/podcast/followed?NombreUsuario=Freeman'
+    request = requests.post(url)
+    assert request.status_code == 405
+
+get/song/byartist
