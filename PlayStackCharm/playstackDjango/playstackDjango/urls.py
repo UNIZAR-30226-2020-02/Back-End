@@ -81,7 +81,6 @@ urlpatterns = [
     url('user/update/playlist', views.updatePlaylist, name='updatePlaylist'), # *
     url('user/update/folder', views.updateFolder, name='updateFolder'), # *
     url('user/update/image', views.UpdatePerfilImage, name='UpdatePerfilImage'), # *
-    url('user/update/permissions', views.UpdatePermissions, name='UpdatePermissions'), # *
     url('user/update/fields', views.UpdateUserFields, name='UpdateUserFields'),  # ^
     url('user/add/request', views.AddRequest, name='AddRequest'), # *
     url('user/add/song/tofavorites', views.AddSongToFavorites, name='AddSongToFavorites'), # *
