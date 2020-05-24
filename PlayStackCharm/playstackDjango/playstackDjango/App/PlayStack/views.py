@@ -569,7 +569,6 @@ def GetLastSong(request):
             hashname = encrypt(str.encode(request.query_params['Usuario'])).hex()
 
             audio = AudioEscuchado.objects.filter(Usuario__NombreUsuario=hashname).order_by('TimeStamp').reverse().first()
-            print(audio.Audio.Titulo)
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
             if audio is not None:
 
@@ -593,11 +592,10 @@ def GetLastSong(request):
                     songData['Generos'] = listOfGenders
                     songData['EsFavorita'] = user in song.UsuariosComoFavorita.all()
                     data[song.AudioRegistrado.Titulo] = songData
-                    print('retorno')
                     return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
                 else:
-                    print('llego')
+                    
                     chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
                     podcast = chapter.Capitulos.all()[0]
                     chapterData['url'] = chapter.getURL(request.META['HTTP_HOST'])
