@@ -236,7 +236,47 @@ def test_GetSongByArtist_clases_validas():
     request = requests.get(url)
     assert request.status_code == 200
 
-def test_GetSubscribedPodcast_clases_validas():
+def test_GetUserPlaylists_clases_validas():
     url = 'https://playstack.azurewebsites.net/get/playlists?NombreUsuario=Freeman'
     request = requests.get(url)
     assert request.status_code == 200
+
+# No existe Usuario
+def test_GetUserPlaylists_clase_4():
+    url = 'https://playstack.azurewebsites.net/get/playlists?NombreUsuario=usuario_test'
+    request = requests.get(url)
+    assert request.status_code == 404
+
+# No existe campo NombreUsuario
+def test_GetUserPlaylists_clase_5():
+    url = 'https://playstack.azurewebsites.net/get/playlists'
+    request = requests.get(url)
+    assert request.status_code == 400
+
+# Se utiliza un metodo POST en lugar del GET
+def test_GetUserPlaylists_clase_5():
+    url = 'https://playstack.azurewebsites.net/get/playlists?NombreUsuario=Freeman'
+    request = requests.post(url)
+    assert request.status_code == 405
+
+
+def test_GetRandomAlbums_clases_validas():
+    url = 'https://playstack.azurewebsites.net/get/randomalbums'
+    request = requests.get(url)
+    assert request.status_code == 200
+
+# Se utiliza un metodo POST en lugar del GET
+def test_GetRandomAlbums_clase_2():
+    url = 'https://playstack.azurewebsites.net/get/randomalbums'
+    request = requests.post(url)
+    assert request.status_code == 405
+
+def test_RemoveAudio_clases_validas():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'NombreUsuario': '', 'Titulo': ''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['Titulo'] = 'Test'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
