@@ -24,28 +24,32 @@ import json
 @parser_classes([JSONParser])
 def CreateUser(request):
     inform = [{'inform': ''}]
-    if request.method == "POST":
+    if request.method == 'POST':
 
-        request.data['Contrasenya'] = encrypt(str.encode(request.data['Contrasenya'])).hex()
-        request.data['NombreUsuario'] = encrypt(str.encode(request.data['NombreUsuario'])).hex()
-        request.data['Correo'] = encrypt(str.encode(request.data['Correo'])).hex()
-        nuevoUsuario = UsuarioSerializer(data=request.data)
+        try:
+            request.data['Contrasenya'] = encrypt(str.encode(request.data['Contrasenya'])).hex()
+            request.data['NombreUsuario'] = encrypt(str.encode(request.data['NombreUsuario'])).hex()
+            request.data['Correo'] = encrypt(str.encode(request.data['Correo'])).hex()
+            nuevoUsuario = UsuarioSerializer(data=request.data)
+            print(request.data)
+            if nuevoUsuario.is_valid():
 
-        if nuevoUsuario.is_valid():
+                nuevoUsuario.save()
+                user = Usuario.objects.get(NombreUsuario=request.data['NombreUsuario'])
+                NoPremium(UsuarioRegistrado=user, NumSalt=10).save()
+                inform[0] = 'Creado correctamente'
+                return JsonResponse(inform, safe=False, status=status.HTTP_201_CREATED)
 
-            nuevoUsuario.save()
-            user = Usuario.objects.get(NombreUsuario=request.data['NombreUsuario'])
-            NoPremium(UsuarioRegistrado=user, NumSalt=10).save()
-            inform[0] = 'Creado correctamente'
-            return JsonResponse(inform, safe=False, status=status.HTTP_201_CREATED)
+            else:
+                inform[0] = 'Campos invalidos'
+                return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
 
-        else:
-            inform[0] = 'Campos invalidos'
-            return JsonResponse(inform, safe=False, status=status.HTTP_201_CREATED)
-
+            inform[0] = 'Formato de JSON incorrecto'
+            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
     else:
         inform[0] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_201_CREATED)
+        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
 
 
 # Permite la creacion de usuarios con una imagen
@@ -138,7 +142,7 @@ def UpdatePerfilImage(request):
 
 
 # Retorna la URL de la cancion solicitada cuyo titulo
-# se especifica en el
+# se especifica en el Titulo
 @api_view(['GET'])
 @parser_classes([JSONParser])
 def GetAudio(request):
@@ -595,7 +599,7 @@ def GetLastSong(request):
                     return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
                 else:
-                    
+
                     chapter = Capitulo.objects.get(AudioRegistrado=audio.Audio)
                     podcast = chapter.Capitulos.all()[0]
                     chapterData['url'] = chapter.getURL(request.META['HTTP_HOST'])

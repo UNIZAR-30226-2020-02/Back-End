@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'playstackDjango.App.PlayStack',
+
     # Para uso de ssl para aplicaciones en local host
     'djangosecure',
     'sslserver'
