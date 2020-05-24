@@ -1196,7 +1196,7 @@ def GetUserFolders(request):
                     i = 0
                     fts = []
                     for can in c_pl.Canciones.order_by('id')[:4]:
-                        album = Album.objects.get(Canciones=can)
+                        album = (Album.objects.filter(Canciones=can)).first()
                         fts.append(album.getFotoDelAlbum(request.META['HTTP_HOST']))
                         i = i + 1
 
