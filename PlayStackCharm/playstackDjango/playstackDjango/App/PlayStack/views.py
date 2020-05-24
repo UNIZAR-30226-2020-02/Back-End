@@ -23,6 +23,7 @@ import json
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def CreateUser(request):
+    print('entro')
     inform = [{'inform': ''}]
     if request.method == 'POST':
 
@@ -49,8 +50,7 @@ def CreateUser(request):
             return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
     else:
         inform[0] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
-
+        return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # Permite la creacion de usuarios con una imagen
 # de perfil
@@ -72,7 +72,7 @@ def CreateUserImg(request):
             return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
     else:
         inform[0] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite la creacion de usuarios especificando su tipo
@@ -110,7 +110,7 @@ def Login(request):
     else:
 
         inform[0] = 'Solo validas peticiones POST'
-        JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+        JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite la actualizacion de
@@ -138,7 +138,7 @@ def UpdatePerfilImage(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Retorna la URL de la cancion solicitada cuyo titulo
@@ -160,7 +160,7 @@ def GetAudio(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Recuoera una cancion de la
@@ -183,7 +183,7 @@ def GetSong(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Recupera un podcast de la base
@@ -206,7 +206,7 @@ def GetPodcastChapter(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -249,7 +249,7 @@ def GivePermissions(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -318,7 +318,7 @@ def UpdatePermissions(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['GET'])
@@ -347,7 +347,7 @@ def GetUserInfo(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Actualiza los campos del usuario
@@ -375,7 +375,7 @@ def UpdateUserFields(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todos los usuarios existentes
@@ -391,7 +391,7 @@ def GetAllUser(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las canciones almacenada
@@ -439,7 +439,7 @@ def GetAllSongs(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las canciones
@@ -501,7 +501,7 @@ def GetSongByGenre(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Añade una nueva solicitud de amistad
@@ -525,7 +525,7 @@ def AddRequest(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve la foto de perfil del usuario
@@ -552,7 +552,7 @@ def GetProfilePhoto(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve la ultimacancion escuchada
@@ -631,7 +631,7 @@ def GetLastSong(request):
                 return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
         else:
 
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     except Usuario.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except KeyError:
@@ -663,7 +663,7 @@ def GetFollowers(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve los usarios
@@ -692,7 +692,7 @@ def GetFollowing(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Añade una cancion a favoritos
@@ -716,7 +716,7 @@ def AddSongToFavorites(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Elimina una cancion como
@@ -747,7 +747,7 @@ def RemoveSongFromFavorites(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Marca una canción como escuchada
@@ -766,17 +766,17 @@ def AddSongToListened(request):
             return Response(status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
 
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
         except Audio.DoesNotExist:
 
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Dado un usuario
@@ -802,7 +802,7 @@ def SearchUser(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Dado un usuario y una palabra clave (que representa a otro usuario),
@@ -832,7 +832,7 @@ def SearchUserSocial(request):
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devulve las canciones
@@ -890,7 +890,7 @@ def GetFavoriteSongs(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Crea una nueva playList
@@ -909,10 +909,12 @@ def CreatePlayList(request):
         except Usuario.DoesNotExist:
 
             return Response(status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Añade una cancion a una
@@ -939,7 +941,7 @@ def AddSongToPlayList(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las play list y su conjunto de imágenes
@@ -976,7 +978,7 @@ def GetUserPlaylists(request):
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las play list y su conjunto de imágenes
@@ -1013,7 +1015,7 @@ def GetUserPublicPlaylists(request):
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite la creacion de carpetas
@@ -1036,7 +1038,7 @@ def CreateFolder(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite modificar los campos
@@ -1057,7 +1059,7 @@ def updatePlaylist(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las canciones de una playlist
@@ -1110,7 +1112,7 @@ def GetPlaylistSongs(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las canciones
@@ -1170,7 +1172,7 @@ def GetSongByArtist(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las carpetas
@@ -1233,7 +1235,7 @@ def GetUserFolders(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite modificar los campos
@@ -1253,7 +1255,7 @@ def removePlaylist(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite modificar los campos
@@ -1276,7 +1278,7 @@ def removePlaylistSong(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite eliminar una carpta
@@ -1297,7 +1299,7 @@ def removeFolder(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite modificar los campos de una carpta
@@ -1320,7 +1322,7 @@ def updateFolder(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite añadir playLists a una carpeta
@@ -1345,7 +1347,7 @@ def addPlayListToFolder(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite eliminar playLists de una carpeta
@@ -1369,7 +1371,7 @@ def removePlayListFromFolder(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Añade una solicitud de amistad
@@ -1392,7 +1394,7 @@ def AddUserFollowResquest(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # La funcion devuelve los ultimos  20
@@ -1466,7 +1468,7 @@ def GetLastSongs(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # La funcion devuelve los ultimos  20
@@ -1486,7 +1488,7 @@ def GetAllArtists(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # La funcion devuelve los ultimos  20
@@ -1506,7 +1508,7 @@ def GetAllGenders(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve las solicitudes de amistad hacia un usuario
@@ -1534,7 +1536,7 @@ def GetFollowRequests(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve el tipo de permiso
@@ -1565,7 +1567,7 @@ def GetPermissions(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # La funcion hace una recuperacion
@@ -1677,7 +1679,7 @@ def Search(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Permite que un usuario deje de seguir a un usuario ya seguido
@@ -1697,7 +1699,7 @@ def Unfollow(request):
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Elimina una solicitud de seguir:
@@ -1718,7 +1720,7 @@ def RemoveUserFollowResquest(request):
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Elimina una solicitud de seguir
@@ -1739,7 +1741,7 @@ def RejectFollowResquest(request):
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # El usuario 'NombreUsuario' elimina el seguidor 'Seguidor'
@@ -1760,7 +1762,7 @@ def RemoveFollower(request):
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Añade al a 'seguidor' en los seguidores de 'Usuario'
@@ -1787,7 +1789,7 @@ def Follow(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve todas las canciones
@@ -1847,7 +1849,7 @@ def GetSongByAlbum(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve los albumes de un artista, y su foto
@@ -1868,7 +1870,7 @@ def GetArtistAlbums(request):
         except Artista.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 # Devuelve 15 random albums y su conjunto de imágenes
@@ -1887,7 +1889,7 @@ def GetRandomAlbums(request):
         except Album.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -1908,7 +1910,7 @@ def AskForPremium(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET'])
 def GetAllPodcasts(request):
@@ -1923,7 +1925,7 @@ def GetAllPodcasts(request):
 
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET'])
 def GetPodcastByTema(request):
@@ -1949,7 +1951,7 @@ def GetPodcastByTema(request):
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
 
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET'])
 def GetPodcastByInterlocutor(request):
@@ -1976,7 +1978,7 @@ def GetPodcastByInterlocutor(request):
 
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET'])
 def GetSubscribedPodcast(request):
@@ -2008,7 +2010,7 @@ def GetSubscribedPodcast(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['GET'])
@@ -2043,7 +2045,7 @@ def GetPodcastCaps(request):
         except Podcast.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['GET'])
@@ -2059,7 +2061,7 @@ def GetAllTematics(request):
 
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['GET'])
 def GetMostListenedSongs(request):
@@ -2131,7 +2133,7 @@ def GetMostListenedSongs(request):
 
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['GET'])
@@ -2160,7 +2162,7 @@ def GetMostListenedGenres(request):
 
         return JsonResponse(data, safe=False, status=status.HTTP_200_OK)
     else:
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -2192,7 +2194,7 @@ def CreateAlbum(request):
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
     else:
         inform['inform'] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
 def CreateSong(request):
@@ -2247,7 +2249,7 @@ def CreateSong(request):
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
     else:
         inform['inform'] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 
@@ -2296,7 +2298,7 @@ def CreateCapituloPodcast(request):
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
     else:
         inform['inform'] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
 def CreatePodcast(request):
@@ -2327,7 +2329,7 @@ def CreatePodcast(request):
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
     else:
         inform['inform'] = 'La peticion debe ser POST'
-        return JsonResponse(inform, safe=False, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
 def FollowPodcast(request):
@@ -2352,7 +2354,7 @@ def FollowPodcast(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
 def UnfollowPodcast(request):
@@ -2377,7 +2379,7 @@ def UnfollowPodcast(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -2406,7 +2408,7 @@ def RemoveAudio(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
 def RemoveAudio(request):
@@ -2434,7 +2436,7 @@ def RemoveAudio(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 @api_view(['POST'])
 def SongUpdate(request):
@@ -2467,7 +2469,7 @@ def SongUpdate(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -2508,4 +2510,4 @@ def ChapterUpdate(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
 
-        return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
