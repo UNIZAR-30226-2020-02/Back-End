@@ -196,4 +196,47 @@ def test_GetSubscribedPodcast_clase_6():
     request = requests.post(url)
     assert request.status_code == 405
 
-get/song/byartist
+def test_GetSongByArtist_clases_validas():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreUsuario=Freeman&NombreArtista=Queen'
+    request = requests.get(url)
+    assert request.status_code == 200
+
+# Usuario no existe
+def test_GetSongByArtist_clase_6():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreUsuario=usuario_test&NombreArtista=Queen'
+    request = requests.get(url)
+    assert request.status_code == 404
+
+# Artista no existe
+def test_GetSongByArtist_clase_7():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreUsuario=Freeman&NombreArtista=artista_test'
+    request = requests.get(url)
+    assert request.status_code == 404
+
+# No existe el campo NombreUsuario
+def test_GetSongByArtist_clase_8():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreArtista=Queen'
+    request = requests.get(url)
+    assert request.status_code == 400
+
+# No existe el campo NombreArtista
+def test_GetSongByArtist_clase_9():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreUsuario=Freeman'
+    request = requests.get(url)
+    assert request.status_code == 400
+
+# Se utiliza un metodo POST en lugar del GET
+def test_GetSongByArtist_clase_10():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreUsuario=Freeman&NombreArtista=Queen'
+    request = requests.post(url)
+    assert request.status_code == 405
+
+def test_GetSongByArtist_clases_validas():
+    url = 'https://playstack.azurewebsites.net/get/song/byartist?NombreUsuario=Freeman&NombreArtista=Queen'
+    request = requests.get(url)
+    assert request.status_code == 200
+
+def test_GetSubscribedPodcast_clases_validas():
+    url = 'https://playstack.azurewebsites.net/get/playlists?NombreUsuario=Freeman'
+    request = requests.get(url)
+    assert request.status_code == 200

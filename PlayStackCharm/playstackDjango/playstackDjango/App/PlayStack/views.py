@@ -985,6 +985,9 @@ def GetUserPlaylists(request):
 
         except Usuario.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        except KeyError:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
