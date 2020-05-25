@@ -2189,12 +2189,13 @@ def CreateAlbum(request):
 
     if request.method == 'POST':
 
-        hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
         try:
+
+            hashname = encrypt(str.encode(request.data['NombreUsuario'])).hex()
             user = Usuario.objects.get(Q(NombreUsuario=hashname) | Q(Correo=hashname))
 
             if CreadorContenido.objects.filter(UsuarioRegistrado=user).exists():
-                del request.data['NombreUsuario']
+
                 request.data['Fecha'] = datetime.datetime.strptime(request.data['Fecha'], '%Y/%m/%d')
                 form = AlbumForm(request.data, request.FILES)
                 if form.is_valid():
@@ -2210,6 +2211,9 @@ def CreateAlbum(request):
         except Usuario.DoesNotExist:
             inform['inform'] = 'El usuario no existe'
             return JsonResponse(inform, safe=False, status=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            inform['inform'] = 'Campos invalidos'
+            return JsonResponse(inform, safe=False, status=status.HTTP_400_BAD_REQUEST)
     else:
         inform['inform'] = 'La peticion debe ser POST'
         return JsonResponse(inform, safe=False, status=status.HTTP_405_METHOD_NOT_ALLOWED)
@@ -2275,7 +2279,6 @@ def CreateSong(request):
 @api_view(['POST'])
 def CreateCapituloPodcast(request):
     inform = {'inform': ''}
-    print('llego')
     if request.method == 'POST':
         print(request.data)
 

@@ -465,3 +465,192 @@ def test_AddSongToListened_clase_10():
     datos['Titulo'] = 'So Payasete XD'
     request = requests.get(url, json=datos)
     assert request.status_code == 405
+# El usuario no existe
+def test_RemoveAudio_clase_7():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'NombreUsuario': '', 'Titulo': ''}
+
+    datos['NombreUsuario'] = 'usuario_test'
+    datos['Titulo'] = 'Test'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 404
+
+# El usuario no es creador
+def test_RemoveAudio_clase_8():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'NombreUsuario': '', 'Titulo': ''}
+
+    datos['NombreUsuario'] = 'Pedro14'
+    datos['Titulo'] = 'Test'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 401
+
+# El audio no existe
+def test_RemoveAudio_clase_9():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'NombreUsuario': '', 'Titulo': ''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['Titulo'] = 'audio_test'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 404
+
+# No existe el campo NombreUsuario
+def test_RemoveAudio_clase_10():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'Titulo': ''}
+    datos['Titulo'] = 'Test'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+# No existe el campo Titulo
+def test_RemoveAudio_clase_11():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'NombreUsuario': ''}
+    datos['NombreUsuario'] = 'DiosCreador'
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+# Se utiliza un metodo GET en lugar del POST
+def test_RemoveAudio_clase_12():
+
+    url = 'https://playstack.azurewebsites.net/audio/remove'
+    datos = {'NombreUsuario': '', 'Titulo': ''}
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['Titulo'] = 'Test'
+    request = requests.get(url, json=datos)
+    assert request.status_code == 405
+
+def test_CreateAlbum_clases_validas():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '2020/09/09'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, data=datos, files=files)
+    assert request.status_code == 200
+
+# El usuario no existe
+def test_CreateAlbum_clase_8():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreUsuario'] = 'usuario_test'
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '2020/09/09'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, data=datos, files=files)
+    assert request.status_code == 404
+
+# El usuario no tiene permisos
+def test_CreateAlbum_clase_9():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreUsuario'] = 'Pedro14'
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '2020/09/09'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, data=datos, files=files)
+    assert request.status_code == 401
+
+# El campo  NombreUsuario no existe
+def test_CreateAlbum_clase_10():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreAlbum': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '2020/09/09'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, json=datos, files=files)
+    assert request.status_code == 400
+
+ # El campo NombreAlbum no existe
+def test_CreateAlbum_clase_11():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['Fecha'] = '2020/09/09'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, data=datos, files=files)
+    assert request.status_code == 400
+
+# El campo Fecha no existe
+def test_CreateAlbum_clase_12():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': ''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreAlbum'] = 'album_test'
+    datos['NombreUsuario'] = 'DiosCreador'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, data=datos, files=files)
+    assert request.status_code == 400
+
+# El campo FotoDelAlbum no existe
+def test_CreateAlbum_clase_13():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '2020/09/09'
+
+    request = requests.post(url, json=datos)
+    assert request.status_code == 400
+
+# Formato de fecha erroneo
+def test_CreateAlbum_clase_14():
+
+    url = 'http://127.0.0.1:8000/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '20/09/2009'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.post(url, json=datos, files=files)
+    assert request.status_code == 400
+
+# Se utiliza un metodo GET en lugar del POST
+def test_CreateAlbum_clase_15():
+
+    url = 'https://playstack.azurewebsites.net/create/album'
+    datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
+    files = {'FotoDelAlbum' : ''}
+
+    datos['NombreUsuario'] = 'DiosCreador'
+    datos['NombreAlbum'] = 'album_test'
+    datos['Fecha'] = '2020/09/09'
+    files['FotoDelAlbum'] = open('Imagen5.png' , 'rb')
+
+    request = requests.get(url, data=datos, files=files)
+    assert request.status_code == 405
