@@ -444,7 +444,7 @@ def test_CreateAlbum_clase_13():
 # Formato de fecha erroneo
 def test_CreateAlbum_clase_14():
 
-    url = 'http://127.0.0.1:8000/create/album'
+    url = 'https://playstack.azurewebsites.net/create/album'
     datos = {'NombreUsuario': '', 'NombreAlbum': '','Fecha':''}
     files = {'FotoDelAlbum' : ''}
 
