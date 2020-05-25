@@ -774,11 +774,11 @@ def AddSongToListened(request):
             return Response(status=status.HTTP_200_OK)
         except Usuario.DoesNotExist:
 
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(status=status.HTTP_404_METHOD_NOT_ALLOWED)
 
         except Audio.DoesNotExist:
 
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response(status=status.HTTP_404_METHOD_NOT_ALLOWED)
         except KeyError:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
