@@ -1,6 +1,6 @@
 import requests
 import json
-'''
+
 def test_CreateUser_clases_validas():
     url = 'https://playstack.azurewebsites.net/create/user'
     headers = {'content-type': 'application/json'}
@@ -280,7 +280,7 @@ def test_RemoveAudio_clases_validas():
     datos['Titulo'] = 'Test'
     request = requests.post(url, json=datos)
     assert request.status_code == 400
-'''
+
 
 ######################################################################################
 #################################### LOGIN TEST ######################################
