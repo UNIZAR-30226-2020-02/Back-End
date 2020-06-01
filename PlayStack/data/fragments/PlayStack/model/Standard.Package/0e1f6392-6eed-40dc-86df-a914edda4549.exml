@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="App" version="4">
+  <OBJECT>
+    <ID name="App" mc="Standard.Package" uid="0e1f6392-6eed-40dc-86df-a914edda4549"/>
+    <PID name="playstackDjango" mc="Standard.Package" uid="9127b018-3510-480c-b945-41556d7d3a34"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[App]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="admin.py" mc="Standard.Class" uid="bc1a4e7d-3080-4cfa-9567-d79da2c96acb"/>
+        <COMPID name="apps.py" mc="Standard.Class" uid="2dc65222-b993-4794-bb8e-2744371d3991"/>
+        <COMPID name="forms.py" mc="Standard.Class" uid="e0021473-b90f-47ee-9409-eebf5435f010"/>
+        <COMPID name="functions.py" mc="Standard.Class" uid="bee26677-db66-46b3-a9fe-8096a58da54b"/>
+        <COMPID name="models.py" mc="Standard.Class" uid="c50b49ee-eecc-4c03-98fa-43268f9a62aa"/>
+        <COMPID name="resources.py" mc="Standard.Class" uid="0b5b73c7-5c82-4b2a-af5b-f1cefdfd7ce2"/>
+        <COMPID name="serializer.py" mc="Standard.Class" uid="f0c098eb-61eb-467d-987b-bd27522cc651"/>
+        <COMPID name="test.py" mc="Standard.Class" uid="76153265-0ccd-4a08-9e80-91cbeff1dfb7"/>
+        <COMPID name="views.py" mc="Standard.Class" uid="21a3c900-af6e-4033-b582-b832b7165323"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="PlayStack" version="4">
+  <OBJECT>
+    <ID name="PlayStack" mc="Infrastructure.DiagramSet" uid="0f253588-e4fa-49dd-adf6-ef00f8c44346"/>
+    <PID name="PlayStack" mc="Standard.Project" uid="8e5845fd-d118-488b-95c2-99ed0bd83967"/>
+    <ATTRIBUTES>
+      <ATT name="Name"><![CDATA[PlayStack]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES></DEPENDENCIES>
+  </OBJECT>
+</EXT>

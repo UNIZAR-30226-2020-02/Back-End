@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="playstack" version="4">
+  <OBJECT>
+    <ID name="playstack" mc="Standard.Package" uid="0c496df4-a00e-4af0-9c36-8ac34cc2fa6f"/>
+    <PID name="PlayStack" mc="Standard.Project" uid="8e5845fd-d118-488b-95c2-99ed0bd83967"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[playstack]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="Podcast" mc="Standard.Class" uid="a4bb8bce-9a74-45cf-af61-ce1ccb01e3bf"/>
+        <COMPID name="Album" mc="Standard.Class" uid="de548611-e4ef-4458-a65c-41680eb60ea2"/>
+        <COMPID name="Carpeta" mc="Standard.Class" uid="beb8a5a5-1f96-4c38-8c98-a877d2269460"/>
+        <COMPID name="Cancion" mc="Standard.Class" uid="093cbd72-03e8-44f7-84b1-26ed8fbbf3a5"/>
+        <COMPID name="Capitulo" mc="Standard.Class" uid="1315fd1f-654d-4fb0-9a50-c367f9440527"/>
+        <COMPID name="Usuario" mc="Standard.Class" uid="947b9380-d5f3-425a-a360-57b1f6175bec"/>
+        <COMPID name="API Rest" mc="Standard.Class" uid="5dacd560-a483-4965-aa90-3a8916fd4de6"/>
+        <COMPID name="PlayList" mc="Standard.Class" uid="4d3ea2de-d0e3-451f-8b85-916d82d1ace2"/>
+        <COMPID name="Tema" mc="Standard.Class" uid="f1feaf9e-e904-425d-99de-d4c2691e140c"/>
+        <COMPID name="Genero" mc="Standard.Class" uid="814bc41b-f45f-40c6-9d4a-9bd13d036e30"/>
+        <COMPID name="Artista" mc="Standard.Class" uid="46752e15-7cd4-4f28-836b-30f64cb73faa"/>
+        <COMPID name="CreadorContenido" mc="Standard.Class" uid="35783978-74d3-4ba2-8a57-a871cc6ecfdc"/>
+        <COMPID name="NoPremium" mc="Standard.Class" uid="b6ba7957-9a1f-4051-bb05-c1a6b1105c6e"/>
+        <COMPID name="Premium" mc="Standard.Class" uid="32c73d1f-98b6-430c-9fee-111e64da3fda"/>
+        <COMPID name="Audio" mc="Standard.Class" uid="269c7bba-332c-43f6-bd9a-127ac1ca8c74"/>
+        <COMPID name="Interlocutor" mc="Standard.Class" uid="b896b265-1fc1-41bb-9720-ac644fe8aa6e"/>
+        <COMPID name="playstackDjango" mc="Standard.Package" uid="d82f5d9a-ba69-44e6-a056-061f9fdbdac6"/>
+      </COMP>
+      <COMP relation="Product">
+        <COMPID name="playstack Class diagram" mc="Standard.ClassDiagram" uid="1cd23edb-1dcd-4451-bf41-0f617049403a"/>
+        <COMPID name="playstack Class diagram (1)" mc="Standard.ClassDiagram" uid="1bf83445-d861-473a-9099-30ca229ec817"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>

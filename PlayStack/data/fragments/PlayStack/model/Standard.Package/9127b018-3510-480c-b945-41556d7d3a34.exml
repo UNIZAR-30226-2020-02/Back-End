@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<!--GENERATED FILE, PLEASE DO NOT EDIT!!!--><EXT object="playstackDjango" version="4">
+  <OBJECT>
+    <ID name="playstackDjango" mc="Standard.Package" uid="9127b018-3510-480c-b945-41556d7d3a34"/>
+    <PID name="playstackDjango" mc="Standard.Package" uid="d82f5d9a-ba69-44e6-a056-061f9fdbdac6"/>
+    <ATTRIBUTES>
+      <ATT name="IsInstantiable">false</ATT>
+      <ATT name="IsAbstract">false</ATT>
+      <ATT name="IsLeaf">false</ATT>
+      <ATT name="IsRoot">false</ATT>
+      <ATT name="Visibility">Public</ATT>
+      <ATT name="Name"><![CDATA[playstackDjango]]></ATT>
+      <ATT name="status">1970354901745664</ATT>
+    </ATTRIBUTES>
+    <DEPENDENCIES>
+      <COMP relation="OwnedElement">
+        <COMPID name="settings.py" mc="Standard.Class" uid="f2bc6d64-2817-46a1-b1a5-97299f2ac29c"/>
+        <COMPID name="url.py" mc="Standard.Class" uid="7e836304-202c-49a9-a9a1-7fb8a0d5a78c"/>
+        <COMPID name="wsgi.py" mc="Standard.Class" uid="c1491e0c-e0de-4e31-841b-5fe7c8443db4"/>
+        <COMPID name="App" mc="Standard.Package" uid="0e1f6392-6eed-40dc-86df-a914edda4549"/>
+      </COMP>
+    </DEPENDENCIES>
+  </OBJECT>
+</EXT>
